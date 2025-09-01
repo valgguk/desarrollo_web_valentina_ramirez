@@ -1,17 +1,27 @@
-
 // Home & List behaviors
 document.addEventListener("DOMContentLoaded", () => {
-  const lastList = document.getElementById("ultimos");
-  if (lastList) {
-    // Show last 5 items
-    const ultimos = ADOPCIONES.slice(-5);
-    ultimos.reverse().forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.fechaPublicacion} | ${item.comuna} | ${item.sector} | ${item.cantidad} ${item.tipo} ${item.edad} ${item.unidadEdad}`;
-      lastList.appendChild(li);
+  // --- Últimos 5 avisos (en tabla) ---
+  const lastTable = document.querySelector("#ultimos tbody");
+  if (lastTable) {
+    // Tomar los últimos 5
+    const ultimos = ADOPCIONES.slice(-5).reverse();
+
+    ultimos.forEach(item => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${item.fechaPublicacion}</td>
+        <td>${item.comuna}</td>
+        <td>${item.sector}</td>
+        <td>${item.cantidad} ${item.tipo} (${item.edad} ${item.unidadEdad})</td>
+        <td><img src="${item.fotos?.[0]?.small || item.foto || ""}" alt="foto" width="80"></td>
+      `;
+
+      lastTable.appendChild(tr);
     });
   }
 
+  // --- Tabla general en listado.html ---
   const tabla = document.getElementById("tabla-adopciones");
   if (tabla) {
     // Build table rows
@@ -40,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Detalle page
+  // --- Detalle page ---
   const detalleDiv = document.getElementById("detalle");
   if (detalleDiv) {
     const params = new URLSearchParams(window.location.search);
