@@ -1,0 +1,34 @@
+
+:root{ --bg:#fafafa; --fg:#222; --muted:#666; --accent:#2563eb; }
+*{ box-sizing: border-box; }
+body{ font-family: system-ui, Arial, sans-serif; margin:0; background:var(--bg); color:var(--fg); }
+header, nav, main, footer{ padding: 1rem; }
+header{ background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:10; }
+nav a{ margin-right: 1rem; text-decoration:none; color:var(--accent); }
+.container{ max-width: 1000px; margin: 0 auto; }
+h1{ margin: .2rem 0; }
+ul{ padding-left: 1.2rem; }
+table{ width:100%; border-collapse: collapse; background:#fff; }
+th,td{ border:1px solid #e5e7eb; padding:.5rem; text-align:left; }
+tr:hover{ background:#f9fafb; cursor:pointer; }
+label{ display:block; margin-top:.75rem; }
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="datetime-local"], select, textarea{
+  width:100%; padding:.5rem; border:1px solid #ddd; border-radius:.5rem; background:#fff;
+}
+textarea{ resize: vertical; }
+.section{ background:#fff; padding:1rem; border-radius: .75rem; margin:1rem 0; border:1px solid #eee; }
+.flex{ display:flex; gap:1rem; flex-wrap:wrap; }
+.half{ flex:1 1 300px; }
+.btn{ padding:.5rem .9rem; border:1px solid #ddd; border-radius:.75rem; background:#fff; cursor:pointer; }
+.btn:hover{ border-color:#ccc; }
+.actions{ display:flex; gap:.5rem; margin-top: .75rem; }
+.alert{ background:#fff3cd; border:1px solid #ffeeba; color:#856404; padding:.75rem; border-radius:.5rem; }
+.galeria{ display:flex; gap:1rem; flex-wrap:wrap; }
+.overlay{ position:fixed; inset:0; background: rgba(0,0,0,.7); display:flex; align-items:center; justify-content:center; }
+.overlay-inner{ background:#fff; padding:1rem; border-radius:.75rem; }
+dialog{ border:none; border-radius: .75rem; padding:0; }
+dialog .box{ padding:1rem 1rem; }
+footer{ color:var(--muted); text-align:center; padding:2rem 1rem; }
+.small{ color:var(--muted); font-size:.9rem; }
+.grid-3{ display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:1rem; }
+.card{ background:#fff; border:1px solid #eee; border-radius:.75rem; padding:1rem; }
