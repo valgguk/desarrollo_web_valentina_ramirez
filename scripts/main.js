@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${item.fechaPublicacion}</td>
         <td>${item.comuna}</td>
         <td>${item.sector}</td>
-        <td>${item.cantidad} ${item.tipo} (${item.edad} ${item.unidadEdad})</td>
+        <td>${item.cantidad} ${item.tipo}<br>${item.edad} ${item.unidadEdad}</td>
         <td><img src="${item.fotos?.[0]?.small || item.foto || ""}" alt="foto" width="80"></td>
       `;
 
@@ -34,16 +34,12 @@ document.addEventListener("DOMContentLoaded", () => {
         go(`detalle.html?id=${encodeURIComponent(a.id)}`);
       });
       tr.innerHTML = `
-        <td>${a.publicacion}</td>
         <td>${a.fechaPublicacion}</td>
-        <td>${a.region}</td>
+        <td>${a.fechaEntrega}</td>
         <td>${a.comuna}</td>
         <td>${a.sector}</td>
-        <td>${a.cantidad}</td>
-        <td>${a.tipo}</td>
-        <td>${a.edad} ${a.unidadEdad}</td>
-        <td>${a.nombreContacto}</td>
-        <td>${a.email}${a.celular ? " / " + a.celular : ""}</td>
+        <td>${a.cantidad} ${a.tipo}<br>${a.edad} ${a.unidadEdad}</td>
+        <td>${a.nombreContacto} — ${a.email}${a.celular ? + a.celular : ""}</td>
         <td>${a.fotos.length}</td>
       `;
       tbody.appendChild(tr);
