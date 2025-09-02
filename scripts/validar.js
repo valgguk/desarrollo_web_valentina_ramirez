@@ -9,11 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const fechaInput = document.getElementById("fechaEntrega");
   if (fechaInput) fechaInput.value = toLocalInput(dt);
 
-  // Regions & comunas (minimal set for prototype)
-  const regiones = {
-    "Región Metropolitana": ["Santiago","Providencia","Ñuñoa"],
-    "Región de Valparaíso": ["Valparaíso","Viña del Mar"]
-  };
+  // Regions & comunas ( desde regiones.js )
+  const regiones = REGIONES_Y_COMUNAS;
+
   const regionSel = document.getElementById("region");
   const comunaSel = document.getElementById("comuna");
   Object.keys(regiones).forEach(r => {

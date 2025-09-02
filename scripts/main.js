@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${a.fechaEntrega}</td>
         <td>${a.comuna}</td>
         <td>${a.sector}</td>
-        <td>${a.cantidad} ${a.tipo}<br>${a.edad} ${a.unidadEdad}</td>
+        <td>${a.cantidad} ${a.tipo}${a.cantidad > 1 ? "s" : ""}<br>${a.edad} ${a.unidadEdad}</td>
         <td>${a.nombreContacto} — ${a.email}${a.celular ? + a.celular : ""}</td>
         <td>${a.fotos.length}</td>
       `;
@@ -59,7 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
       <p><strong>Región:</strong> ${item.region}</p>
       <p><strong>Comuna:</strong> ${item.comuna}</p>
       <p><strong>Sector:</strong> ${item.sector}</p>
-      <p><strong>Cantidad - Tipo - Edad:</strong> ${item.cantidad} ${item.tipo}, ${item.edad} ${item.unidadEdad}</p>
+      <p><strong>Cantidad - Tipo - Edad:</strong> 
+        ${item.cantidad} ${item.tipo}${item.cantidad > 1 ? "s" : ""},
+        ${item.edad} ${item.unidadEdad}
+      </p>
       <p><strong>Contacto:</strong> ${item.nombreContacto} — ${item.email} ${item.celular ? " / " + item.celular : ""}</p>
       <p><strong>Canales:</strong> ${item.contactarPor.map(c=>`${c.via}: ${c.id}`).join(", ")}</p>
       <p><strong>Descripción:</strong> ${item.descripcion}</p>
