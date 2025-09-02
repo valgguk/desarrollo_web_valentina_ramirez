@@ -53,43 +53,53 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = Number(params.get("id"));
     const item = ADOPCIONES.find(x => x.id === id) || ADOPCIONES[0];
     detalleDiv.innerHTML = `
-      <h2>Publicación ${item.publicacion}</h2>
-      <p><strong>Fecha:</strong> ${item.fechaPublicacion}</p>
-      <p><strong>Entrega:</strong> ${item.region}</p>
+      <h2>Publicación de ${item.nombreContacto}</h2>
+      <p><strong>Fecha de publicación:</strong> ${item.fechaPublicacion}</p>
+      <p><strong>Fecha de entrega:</strong> ${item.fechaEntrega}</p>
+      <p><strong>Región:</strong> ${item.region}</p>
       <p><strong>Comuna:</strong> ${item.comuna}</p>
       <p><strong>Sector:</strong> ${item.sector}</p>
-      <p><strong>Cantidad:</strong> ${item.cantidad}</p>
-      <p><strong>Tipo:</strong> ${item.tipo}</p>
-      <p><strong>Edad:</strong> ${item.edad} ${item.unidadEdad}</p>
+      <p><strong>Cantidad - Tipo - Edad:</strong> ${item.cantidad} ${item.tipo}, ${item.edad} ${item.unidadEdad}</p>
       <p><strong>Contacto:</strong> ${item.nombreContacto} — ${item.email} ${item.celular ? " / " + item.celular : ""}</p>
       <p><strong>Canales:</strong> ${item.contactarPor.map(c=>`${c.via}: ${c.id}`).join(", ")}</p>
       <p><strong>Descripción:</strong> ${item.descripcion}</p>
       <div class="galeria">
         ${item.fotos.map((f,i)=>`
-          <img src="${f.small}" alt="foto ${i+1}" data-large="${f.large}" width="320" height="240">
+          <img 
+            src="${f.small}" 
+            alt="foto ${i+1}" 
+            data-large="${f.large}" 
+            width="320" 
+            height="240"
+            class="foto-chica">
         `).join("")}
       </div>
       <div class="acciones">
-        <a href="listado.html">← Volver al listado</a>
+        <a href="listado.html"> ← Volver al listado</a>
         <a href="index.html">🏠 Portada</a>
       </div>
-      <div id="overlay" class="overlay" hidden>
-        <div class="overlay-inner">
-          <button id="cerrarOverlay" class="btn">Cerrar ✖</button>
-          <img id="overlayImg" alt="foto grande" width="800" height="600">
-        </div>
-      </div>
     `;
-    const overlay = document.getElementById("overlay");
-    const overlayImg = document.getElementById("overlayImg");
-    const cerrar = document.getElementById("cerrarOverlay");
-    document.querySelectorAll(".galeria img").forEach(img => {
+
+    // Modal de foto
+    const modal = document.getElementById("modal-foto");
+    const modalImg = document.getElementById("modal-foto-img");
+    const cerrarBtn = document.getElementById("cerrar-modal");
+
+    document.querySelectorAll(".foto-chica").forEach(img => {
       img.addEventListener("click", () => {
-        overlayImg.src = img.dataset.large;
-        overlay.hidden = false;
+        modal.classList.add("visible");
+        modalImg.src = img.src; 
       });
     });
-    cerrar.addEventListener("click", () => overlay.hidden = true);
-    overlay.addEventListener("click", (e) => { if (e.target.id === "overlay") overlay.hidden = true; });
+
+    cerrarBtn.addEventListener("click", () => {
+      modal.classList.remove("visible");
+    });
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.remove("visible");
+      }
+    });
   }
 });
