@@ -148,7 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fotos
     const files = Array.from(fotosDiv.querySelectorAll('input[type="file"]'));
-    if (files.length < 1) err.push("Debe agregar al menos 1 foto.");
+    const hasFoto = files.some(f => f.files && f.files.length > 0);
+    if (!hasFoto) err.push("Debe agregar al menos 1 foto.");
     if (files.length > 5) err.push("Máximo 5 fotos.");
     // no need to read files, just count
 
