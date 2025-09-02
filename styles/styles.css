@@ -81,3 +81,32 @@ footer{ color:var(--muted); text-align:center; padding:2rem 1rem; }
 .cerrar-btn:hover {
   background: #c0392b;
 }
+
+/* Resalta campos obligatorios */
+.obligatorio {
+  border: 2.5px solid #ff9800;
+  background: linear-gradient(90deg, #ffe0b2 80%, #ffcc80 100%);
+  box-shadow: 0 0 12px #ff980055;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.obligatorio:focus {
+  border-color: #ff5722;
+  background: linear-gradient(90deg, #ffd699 80%, #ffb74d 100%);
+  box-shadow: 0 0 16px #ff572244;
+}
+/* Campos opcionales normales */
+input:not(.obligatorio),
+select:not(.obligatorio),
+textarea:not(.obligatorio) {
+  border: 1px solid #ccc;
+  background: #fff;
+  box-shadow: none;
+}
+/* Mensaje de ayuda */
+.hint {
+  color: #ff9800;
+  font-size: 0.95em;
+  margin-left: 6px;
+  font-style: italic;
+  transition: opacity 0.2s;
+}
