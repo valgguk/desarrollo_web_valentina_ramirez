@@ -3,10 +3,10 @@
 function $(sel, ctx=document){ return ctx.querySelector(sel); }
 function $all(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
 function go(url){ window.location.href = url; }
-// Mostrar hint al escribir en campos obligatorios
+// Mostrar hint al escribir en campos 
 const campos = [
   'nombre', 'email', 'tipo', 'cantidad', 'edad', 'unidad', 'fechaEntrega',
-  'region', 'comuna', 'fotos', 'cel', 'canales', 'descripcion'
+  'region', 'comuna', 'sector', 'fotos', 'cel', 'canales', 'descripcion'
 ];
 campos.forEach(id => {
   const input = document.getElementById(id);

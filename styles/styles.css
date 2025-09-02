@@ -81,18 +81,10 @@ footer{ color:var(--muted); text-align:center; padding:2rem 1rem; }
 .cerrar-btn:hover {
   background: #c0392b;
 }
-
-/* Resalta campos obligatorios */
-.obligatorio {
-  border: 2.5px solid #ff9800;
-  background: linear-gradient(90deg, #ffe0b2 80%, #ffcc80 100%);
-  box-shadow: 0 0 12px #ff980055;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.obligatorio:focus {
-  border-color: #ff5722;
-  background: linear-gradient(90deg, #ffd699 80%, #ffb74d 100%);
-  box-shadow: 0 0 16px #ff572244;
+.asterisco-obligatorio {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-left: 2px;
 }
 /* Campos opcionales normales */
 input:not(.obligatorio),
