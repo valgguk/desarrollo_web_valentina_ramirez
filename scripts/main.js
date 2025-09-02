@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".foto-chica").forEach(img => {
       img.addEventListener("click", () => {
         modal.classList.add("visible");
-        modalImg.src = img.src; 
+        modalImg.src = img.dataset.large; 
       });
     });
 
