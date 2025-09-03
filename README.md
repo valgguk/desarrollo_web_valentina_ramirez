@@ -30,4 +30,5 @@ No requiere servidor. Basta con abrir `index.html` en su navegador.
 - Sin almacenamiento: al confirmar el envío, solo muestra el mensaje final y botón a la portada.
 
 ## Licencias
+Todas las imagenes son obtenidas desde Pexels permitido para uso gratuito público. 
 
