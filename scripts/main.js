@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${item.fechaPublicacion}</td>
         <td>${item.comuna}</td>
         <td>${item.sector}</td>
-        <td>${item.cantidad} ${item.tipo}<br>${item.edad} ${item.unidadEdad}</td>
+        <td>${item.cantidad} ${item.tipo}${item.cantidad > 1 ? "s" : ""}<br>${item.edad} ${item.unidadEdad}</td>
         <td><img src="${item.fotos?.[0]?.small || item.foto || ""}" alt="foto" width="80"></td>
       `;
 
