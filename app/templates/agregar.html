@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agregar aviso de adopción</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>Agregar aviso de adopción</h1>
+    <nav>
+      <a href="{{ url_for('main.index') }}">Portada</a>
+      <a href="{{ url_for('main.listado') if 'main.listado' in current_app.view_functions else '#' }}">Ver listado</a>
+      <a href="{{ url_for('main.index') }}#estadisticas">Estadísticas</a>
+    </nav>
+  </div>
+</header>
+<main class="container" id="contenedor">
+
+  {# Mensajes flash (éxito / error general) #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="section alert">
+        <ul>
+          {% for cat, msg in messages %}
+            <li><strong>{{ cat|capitalize }}:</strong> {{ msg }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {# Errores específicos de validación del servidor (lista 'errores') #}
+  {% if errores %}
+    <div class="section alert" aria-live="assertive">
+      <strong>Errores del servidor:</strong>
+      <ul>
+        {% for e in errores %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form id="formAviso" class="section" novalidate method="POST" action="{{ url_for('main.agregar') }}" enctype="multipart/form-data">
+    <h2>¿Dónde?</h2>
+    <div class="flex">
+      <div class="half">
+        <label for="region">Región <span class="asterisco-obligatorio">*</span> <span class="hint" id="hint-region" style="display:none;">(obligatorio)</span></label>
+        <select id="region" name="region_id" class="obligatorio">
+          <option value="">Seleccione región...</option>
+          {% for r in regiones %}
+            <option value="{{ r.id }}" {% if data and data.get('region_id')|int == r.id %}selected{% endif %}>{{ r.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="half">
+        <label for="comuna">Comuna <span class="asterisco-obligatorio">*</span><span class="hint" id="hint-comuna" style="display:none;">(obligatorio)</span></label>
+        <select id="comuna" name="comuna_id" class="obligatorio">
+          <option value="">Seleccione comuna...</option>
+          {# Si se seleccionó región previamente, mostramos sus comunas #}
+          {% if data and data.get('region_id') %}
+            {% for r in regiones if r.id == data.get('region_id')|int %}
+              {% for c in r.comunas %}
+                <option value="{{ c.id }}" {% if data.get('comuna_id')|int == c.id %}selected{% endif %}>{{ c.nombre }}</option>
+              {% endfor %}
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+    </div>
+    <label for="sector">Sector <span class="hint" id="hint-sector" style="display:none;">(opcional, máx 100)</span></label>
+    <input type="text" id="sector" name="sector" maxlength="100" placeholder="Ej: Beauchef 850, terraza" value="{{ data.get('sector','') if data else '' }}">
+
+    <h2>¿Contacto de esta publicación?</h2>
+    <label for="nombre">Nombre <span class="asterisco-obligatorio">*</span> <span class="hint" id="hint-nombre" style="display:none;">(3-200, obligatorio)</span></label>
+    <input type="text" id="nombre" name="nombre" class="obligatorio" maxlength="200" value="{{ data.get('nombre','') if data else '' }}">
+    <label for="email">Email <span class="asterisco-obligatorio">*</span><span class="hint" id="hint-email" style="display:none;">(formato válido, máx 100, obligatorio)</span></label>
+    <input type="email" id="email" name="email" class="obligatorio" maxlength="100" value="{{ data.get('email','') if data else '' }}">
+    <label for="cel">Número de celular <span class="hint" id="hint-cel" style="display:none;">(opcional, +NNN.NNNNNNNN)</span></label>
+    <input type="tel" id="cel" name="cel" placeholder="+569.12345678" value="{{ data.get('cel','') if data else '' }}">
+
+    <h3>Contactar por <span class="hint" id="hint-canales" style="display:none;">(opcional, máx 5)</span></h3>
+    <div id="canales">
+      {% if canales %}
+        {% for via, ident in canales %}
+          <div class="canal">
+            <select class="via" name="canal_via[]">
+              <option value="">Seleccione...</option>
+              {% for option in ['whatsapp','telegram','X','instagram','tiktok','otra'] %}
+                <option value="{{ option }}" {% if via==option %}selected{% endif %}>{{ option }}</option>
+              {% endfor %}
+            </select>
+            <input type="text" class="id" name="canal_id[]" value="{{ ident }}" placeholder="ID o URL (4-50)" maxlength="50">
+            <button type="button" class="rem">Quitar</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    <div class="actions">
+      <button type="button" id="addCanal" class="btn">Agregar canal</button>
+    </div>
+
+    <h2>¿Qué mascota ofrece en adopción?</h2>
+    <div class="flex">
+      <div class="half">
+        <label for="tipo">Tipo <span class="asterisco-obligatorio">*</span><span class="hint" id="hint-tipo" style="display:none;">(obligatorio)</span></label>
+        <select id="tipo" name="tipo" class="obligatorio">
+          <option value="">Seleccione...</option>
+          <option value="gato" {% if data and data.get('tipo')=='gato' %}selected{% endif %}>gato</option>
+            <option value="perro" {% if data and data.get('tipo')=='perro' %}selected{% endif %}>perro</option>
+        </select>
+      </div>
+      <div class="half">
+        <label for="cantidad">Cantidad <span class="asterisco-obligatorio">*</span><span class="hint" id="hint-cantidad" style="display:none;">(entero, min 1, obligatorio)</span></label>
+        <input type="number" id="cantidad" name="cantidad" class="obligatorio" min="1" step="1" value="{{ data.get('cantidad','') if data else '' }}">
+      </div>
+    </div>
+    <div class="flex">
+      <div class="half">
+        <label for="edad">Edad <span class="asterisco-obligatorio">*</span><span class="hint" id="hint-edad" style="display:none;">(entero, min 1, obligatorio)</span></label>
+        <input type="number" id="edad" name="edad" class="obligatorio" min="1" step="1" value="{{ data.get('edad','') if data else '' }}">
+      </div>
+      <div class="half">
+        <label for="unidad">Unidad <span class="asterisco-obligatorio">*</span><span class="hint" id="hint-unidad" style="display:none;">(obligatorio)</span></label>
+        <select id="unidad" name="unidad" class="obligatorio">
+          <option value="">Seleccione...</option>
+          <option value="meses" {% if data and data.get('unidad')=='meses' %}selected{% endif %}>meses</option>
+          <option value="años" {% if data and data.get('unidad')=='años' %}selected{% endif %}>años</option>
+        </select>
+      </div>
+    </div>
+    <label for="fechaEntrega">Fecha disponible para entrega <span class="asterisco-obligatorio">*</span><span class="hint" id="hint-fechaEntrega" style="display:none;">(>= prellenada, obligatorio)</span></label>
+    <input type="datetime-local" id="fechaEntrega" name="fechaEntrega" class="obligatorio" value="{{ data.get('fechaEntrega','') if data else '' }}">
+
+    <label for="descripcion">Descripción <span class="hint" id="hint-descripcion" style="display:none;">(opcional)</span></label>
+    <textarea id="descripcion" name="descripcion" cols="50" rows="10">{{ data.get('descripcion','') if data else '' }}</textarea>
+    
+    <!-- Para fotos -->
+    <h3>Fotos <span class="asterisco-obligatorio">*</span><span class="hint" id="hint-fotos" style="display:none;">(mín 1, máx 5, obligatorio)</span></h3>
+    <div id="fotos" class="obligatorio">
+      {# Si hubo error de validación, no podemos reponer archivos; mostramos un input inicial #}
+      <input type="file" name="fotos[]" accept="image/*">
+    </div>
+    <div class="actions">
+      <button type="button" id="addFoto" class="btn">Agregar otra foto</button>
+    </div>
+
+    <div class="section alert" id="erroresClienteWrapper" hidden>
+      <strong>Errores del cliente:</strong>
+      <ul id="errores"></ul>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn">Agregar este aviso de adopción</button>
+    </div>
+  </form>
+
+  <dialog id="confirmModal">
+    <div class="box">
+      <p><strong>¿Está seguro que desea agregar este aviso de adopción?</strong></p>
+      <div class="actions">
+        <button id="siSeguro" class="btn">Sí, estoy seguro</button>
+        <button id="noSeguro" class="btn">No, no estoy seguro, quiero volver al formulario</button>
+      </div>
+    </div>
+  </dialog>
+</main>
+<footer></footer>
+<script src="{{ url_for('static', filename='scripts/ui.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/validar.js') }}"></script>
+</body>
+</html>
