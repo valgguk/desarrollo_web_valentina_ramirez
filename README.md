@@ -29,7 +29,7 @@ Para desactivar: `deactivate`.
 ```powershell
 pip install -r requirements.txt
 ```
-El archivo `requirements.txt` incluye: Flask, Flask_SQLAlchemy, PyMySQL.
+El archivo `requirements.txt` incluye: Flask, Flask_SQLAlchemy, PyMySQL, Pillow (para generar miniaturas y versiones large al subir nuevas fotos).
 
 ---
 ## 5. Crear/Importar el esquema MySQL ( regiones / comunas )
@@ -104,16 +104,15 @@ Edad | Entero ≥ 1.
 Unidad | meses → se guarda `m` / años → `a`.
 Fecha entrega | `datetime-local`, ≥ ahora+3h (validación cliente) / formato validado servidor.
 Fotos | 1–5 imágenes, extensiones en `ALLOWED_IMAGE_EXTENSIONS`.
-Descripción | Opcional.
+Descripción | Opcional, máx 500 caracteres.
 
 En servidor se replican reglas esenciales para evitar bypass.
 
 ---
 ## 10. Manejo de imágenes
-- Upload real: se guarda en `app/static/uploads` usando nombre seguro + prefijo aleatorio.
-- Seed: copia archivos de `app/static/images` (no se sobreescriben si ya existen).
-- Detalle: solo miniaturas *_320x240 muestran; al click se calcula la versión grande reemplazando sufijo `_320x240` → `_800x600`.
-- Portada: mismo patrón (solo primera miniatura). Modal independiente para no interferir con navegación de fila.
+- Upload real: al subir, el servidor genera automáticamente DOS variantes usando Pillow: `*_320x240` (miniatura) y `*_800x600` (large). Se centra la imagen en un lienzo blanco manteniendo proporción (letterboxing si hace falta). Solo la variante `320x240` se registra en la tabla `foto`; la grande se infiere reemplazando sufijo.
+- Seed: copia archivos de `app/static/images` hacia `app/static/uploads` (ya vienen con ambos tamaños en el dataset inicial de ejemplo).
+- Detalle / Portada / Listado: solo se cargan miniaturas; al click se abre modal con la grande (reemplazo de sufijo `_320x240` por `_800x600`).
 
 ---
 ## 11. Decisiones de diseño destacadas
@@ -121,6 +120,8 @@ En servidor se replican reglas esenciales para evitar bypass.
 - Confirmación final mediante `<dialog>` antes de enviar.
 - Paginación en servidor (consulta ordenada por `fecha_ingreso desc`).
 - Separación chica/large de imágenes para rendimiento (solo miniaturas en listados).
+- Helper de pluralización en backend (`plural(n, singular, plural)`) evita casos como "1 gatos" o "1 meses" (ahora "1 gato", "1 mes").
+- Mensajes flash de éxito aparecen superpuestos (overlay) y se desvanecen automáticamente tras ~3.5s.
 - Se evita dependencia de frameworks JS; solo Vanilla JS.
 - Charset `utf8mb4` en la conexión para corregir errores de acentos (reimportación de regiones/comunas se efectuó durante el desarrollo).
 

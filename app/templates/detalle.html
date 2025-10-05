@@ -26,8 +26,12 @@
     <p><strong>Comuna:</strong> {{ aviso.comuna.nombre }}</p>
     <p><strong>Sector:</strong> {{ aviso.sector or '' }}</p>
     <p><strong>Cantidad - Tipo - Edad:</strong>
-      {{ aviso.cantidad }} {{ aviso.tipo }}{% if aviso.cantidad>1 %}s{% endif %},
-      {{ aviso.edad }} {{ 'meses' if aviso.unidad_medida=='m' else 'años' }}
+      {{ plural(aviso.cantidad, aviso.tipo, aviso.tipo + 's') }},
+      {% if aviso.unidad_medida=='m' %}
+        {{ plural(aviso.edad, 'mes', 'meses') }}
+      {% else %}
+        {{ plural(aviso.edad, 'año', 'años') }}
+      {% endif %}
     </p>
     <p><strong>Contacto:</strong> {{ aviso.nombre }} — {{ aviso.email }}{% if aviso.celular %} / {{ aviso.celular }}{% endif %}</p>
     <p><strong>Canales:</strong>

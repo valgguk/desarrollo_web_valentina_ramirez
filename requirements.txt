@@ -1,3 +1,4 @@
 Flask
 Flask_SQLAlchemy
 PyMySQL
+Pillow  # para redimensionar imágenes (generar 320x240 y 800x600)

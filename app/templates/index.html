@@ -18,6 +18,15 @@
   </div>
 </header>
 <main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="flash-overlay" style="position:fixed; top:1rem; left:50%; transform:translateX(-50%); background:#222; color:#fff; padding:1rem 1.25rem; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,.35); z-index:1000; font-size:.95rem;">
+        {% for cat, msg in messages %}
+          <div><strong>{{ cat|capitalize }}:</strong> {{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
   <section class="section">
     <h2>Bienvenido</h2>
     <p class="small">Aplicación de adopción de mascotas. Aquí ves los últimos 5 avisos ingresados.</p>
@@ -45,7 +54,9 @@
           <td>{{ a.fecha_ingreso.strftime('%Y-%m-%d %H:%M') if a.fecha_ingreso else '' }}</td>
           <td>{{ a.comuna.nombre if a.comuna else '' }}</td>
           <td>{{ a.sector or '' }}</td>
-          <td>{{ a.cantidad }} {{ a.tipo }}{% if a.cantidad>1 %}s{% endif %} — {{ a.edad }} {{ 'meses' if a.unidad_medida=='m' else 'años' }}</td>
+          <td>
+            {{ plural(a.cantidad, a.tipo, a.tipo + 's') }} — {{ plural(a.edad, 'mes', 'meses') if a.unidad_medida=='m' else plural(a.edad, 'año','años') }}
+          </td>
           <td>
             {% if fotos_small %}
               {# mostramos solo la primera small; al click agrandamos su versión large #}
@@ -85,6 +96,14 @@
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', ()=>{
+    const flash = document.getElementById('flash-overlay');
+    if (flash){
+      setTimeout(()=>{
+        flash.style.transition='opacity .6s';
+        flash.style.opacity='0';
+        setTimeout(()=> flash.remove(), 700);
+      }, 3500);
+    }
     // Filas clickeables excepto cuando se hace click en la miniatura o en enlaces internos
     document.querySelectorAll('tr.fila-ult').forEach(tr=>{
       tr.addEventListener('click', (e)=>{

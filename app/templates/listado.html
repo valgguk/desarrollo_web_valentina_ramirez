@@ -39,7 +39,7 @@
           <td>{{ a.fecha_entrega.strftime('%Y-%m-%d %H:%M') }}</td>
           <td>{{ a.comuna.nombre }}</td>
           <td>{{ a.sector or '' }}</td>
-          <td>{{ a.cantidad }} {{ a.tipo }}{% if a.cantidad>1 %}s{% endif %}<br>{{ a.edad }} {{ 'meses' if a.unidad_medida=='m' else 'años' }}</td>
+          <td>{{ plural(a.cantidad, a.tipo, a.tipo + 's') }}<br>{% if a.unidad_medida=='m' %}{{ plural(a.edad,'mes','meses') }}{% else %}{{ plural(a.edad,'año','años') }}{% endif %}</td>
           <td>{{ a.nombre }} — {{ a.email }}{% if a.celular %} / {{ a.celular }}{% endif %}</td>
           <td>{{ a.fotos|length }}</td>
         </tr>
