@@ -12,15 +12,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Los selects de región y comuna ahora vienen renderizados por el servidor (Jinja + BD)
-  const regionSel = document.getElementById("region"); // (opcional dejó manipulación aquí con JS)
+  const regionSel = document.getElementById("region");
   const comunaSel = document.getElementById("comuna");
+
+  // Custom alert para prefijo "AdoptaMascotas dice:" usando dialog nativo simple
+  function customAlert(msg){
+    window.alert(`AdoptaMascotas dice:\n${msg}`);
+  }
+
+  // Cargar comunas dinámicamente al cambiar región (AJAX)
+  async function cargarComunas(regionId){
+    if (!comunaSel) return;
+    comunaSel.innerHTML = '<option value="">Cargando...</option>';
+    if(!regionId){
+      comunaSel.innerHTML = '<option value="">Seleccione comuna...</option>';
+      return;
+    }
+    try {
+      const res = await fetch(`/api/comunas?region_id=${encodeURIComponent(regionId)}`);
+      if(!res.ok) throw new Error("Error HTTP" );
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("Formato inesperado");
+      comunaSel.innerHTML = '<option value="">Seleccione comuna...</option>' +
+        data.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join("");
+    } catch(err){
+      comunaSel.innerHTML = '<option value="">(Error cargando comunas)</option>';
+    }
+  }
+  if(regionSel){
+    regionSel.addEventListener('change', ()=> cargarComunas(regionSel.value));
+  }
 
   // Contact channels dynamic (max 5)
   const canalesDiv = document.getElementById("canales");
   const addCanalBtn = document.getElementById("addCanal");
   function addCanal() {
     const count = canalesDiv.querySelectorAll(".canal").length;
-    if (count >= 5) return alert("Máximo 5 canales.");
+  if (count >= 5) return customAlert("Máximo 5 canales.");
     const wrap = document.createElement("div");
     wrap.className = "canal";
     wrap.innerHTML = `
@@ -46,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const addFotoBtn = document.getElementById("addFoto");
   function addFoto(){
     const count = fotosDiv.querySelectorAll('input[type="file"]').length;
-    if (count >= 5) return alert("Máximo 5 fotos.");
+  if (count >= 5) return customAlert("Máximo 5 fotos.");
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";

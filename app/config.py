@@ -4,5 +4,6 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = "cambia-esto"
     MAX_CONTENT_LENGTH = 8 * 1024 * 1024  # 8MB global
-    UPLOAD_FOLDER = "app/uploads"
+    # Cambiado a static/uploads para servir directamente via url_for('static', filename='uploads/...')
+    UPLOAD_FOLDER = "app/static/uploads"
     ALLOWED_IMAGE_EXTENSIONS = {"png","jpg","jpeg","gif","webp"}

@@ -12,8 +12,8 @@
     <h1>Agregar aviso de adopción</h1>
     <nav>
       <a href="{{ url_for('main.index') }}">Portada</a>
-      <a href="{{ url_for('main.listado') if 'main.listado' in current_app.view_functions else '#' }}">Ver listado</a>
-      <a href="{{ url_for('main.index') }}#estadisticas">Estadísticas</a>
+      <a href="{{ url_for('main.listado') }}">Ver listado</a>
+  <a href="{{ url_for('main.estadisticas') }}">Estadísticas</a>
     </nav>
   </div>
 </header>

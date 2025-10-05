@@ -13,7 +13,7 @@
     <nav>
       <a href="{{ url_for('main.index') }}">Portada</a>
       <a href="{{ url_for('main.listado') }}">Listado</a>
-      <a href="#">Estadísticas</a>
+  <a href="{{ url_for('main.estadisticas') }}">Estadísticas</a>
     </nav>
   </div>
 </header>
@@ -32,14 +32,20 @@
     <p><strong>Contacto:</strong> {{ aviso.nombre }} — {{ aviso.email }}{% if aviso.celular %} / {{ aviso.celular }}{% endif %}</p>
     <p><strong>Canales:</strong>
       {% if aviso.canales %}
-        {{ aviso.canales | map(attribute='nombre') | list | join(', ') }}
+        {% for c in aviso.canales %}
+          {{ c.nombre }}: {{ c.identificador }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
       {% else %}(sin canales){% endif %}
     </p>
     <p><strong>Descripción:</strong> {{ aviso.descripcion or '' }}</p>
     <h3>Fotos</h3>
     <div class="galeria">
+      {# Se asume que las variantes *_320x240.png y *_800x600.png están cargadas. Mostramos solo las small (#320) y buscamos su par large cambiando el sufijo. #}
       {% for f in aviso.fotos %}
-        <img src="{{ url_for('static', filename='uploads/' ~ f.ruta_archivo) }}" alt="foto {{ loop.index }}" width="320" class="foto-chica" data-large="{{ url_for('static', filename='uploads/' ~ f.ruta_archivo) }}">
+        {% if '_320x240' in f.ruta_archivo %}
+          {% set large = f.ruta_archivo.replace('_320x240','_800x600') %}
+          <img src="{{ url_for('static', filename='uploads/' ~ f.ruta_archivo) }}" alt="foto {{ loop.index }}" width="320" class="foto-chica" data-large="{{ url_for('static', filename='uploads/' ~ large) }}">
+        {% endif %}
       {% endfor %}
     </div>
     <div class="acciones" style="margin-top:1rem; display:flex; gap:1rem;">

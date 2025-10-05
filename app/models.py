@@ -50,7 +50,9 @@ class Foto(db.Model):
 class ContactarPor(db.Model):
     __tablename__ = "contactar_por"
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.Enum("whatsapp","telegram","X","instagram","tiktok","otra", name="canal_enum"), nullable=False)
+    # Enum según esquema original del profesor: 'whatsapp','telegram','X','instagram','tiktok','otra'
+    # Mantener exactamente estos valores para evitar LookupError.
+    nombre = db.Column(db.Enum('whatsapp','telegram','X','instagram','tiktok','otra', name="canal_enum"), nullable=False)
     identificador = db.Column(db.String(150), nullable=False)
     actividad_id = db.Column(db.Integer, db.ForeignKey("aviso_adopcion.id"), nullable=False)
     aviso = db.relationship("AvisoAdopcion", back_populates="canales")

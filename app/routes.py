@@ -1,5 +1,5 @@
 # app/routes.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, send_from_directory
 from .models import db, AvisoAdopcion, Comuna, Region, Foto, ContactarPor
 from sqlalchemy import desc
 from datetime import datetime
@@ -165,3 +165,26 @@ def detalle(aviso_id):
              .filter_by(id=aviso_id)
              .first_or_404())
     return render_template("detalle.html", aviso=aviso)
+
+@bp.route("/estadisticas")
+def estadisticas():
+    # Plantilla estática con imágenes de charts; se sirven vía /charts/<file>
+    return render_template("estadisticas.html")
+
+@bp.route("/api/comunas")
+def api_comunas():
+    region_id = request.args.get("region_id", type=int)
+    if not region_id:
+        return jsonify([])
+    comunas = (Comuna.query
+               .filter_by(region_id=region_id)
+               .order_by(Comuna.nombre)
+               .all())
+    return jsonify([{"id": c.id, "nombre": c.nombre} for c in comunas])
+
+@bp.route('/charts/<path:filename>')
+def charts_static(filename):
+    # Sirve archivos de la carpeta raíz 'charts' (una arriba de app.root_path)
+    import os
+    charts_dir = os.path.join(current_app.root_path, '..', 'charts')
+    return send_from_directory(charts_dir, filename)
