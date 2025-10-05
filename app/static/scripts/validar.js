@@ -1,32 +1,19 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Prefill datetime-local with now + 3h
-  const dt = new Date(Date.now() + 3*60*60*1000);
-  const toLocalInput = (d) => {
-    const pad = (n) => String(n).padStart(2,"0");
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  };
+  // Prefill datetime-local con ahora + 3h solo si el usuario no trajo valor del servidor
   const fechaInput = document.getElementById("fechaEntrega");
-  if (fechaInput) fechaInput.value = toLocalInput(dt);
+  if (fechaInput && !fechaInput.value) {
+    const dt = new Date(Date.now() + 3*60*60*1000);
+    const toLocalInput = (d) => {
+      const pad = (n) => String(n).padStart(2,"0");
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+    fechaInput.value = toLocalInput(dt);
+  }
 
-  // Regions & comunas ( desde regiones.js )
-  const regiones = REGIONES_Y_COMUNAS;
-
-  const regionSel = document.getElementById("region");
+  // Los selects de región y comuna ahora vienen renderizados por el servidor (Jinja + BD)
+  const regionSel = document.getElementById("region"); // (opcional dejó manipulación aquí con JS)
   const comunaSel = document.getElementById("comuna");
-  Object.keys(regiones).forEach(r => {
-    const opt = document.createElement("option");
-    opt.value = r; opt.textContent = r;
-    regionSel.appendChild(opt);
-  });
-  regionSel.addEventListener("change", () => {
-    comunaSel.innerHTML = '<option value="">Seleccione comuna...</option>';
-    (regiones[regionSel.value]||[]).forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c; opt.textContent = c;
-      comunaSel.appendChild(opt);
-    });
-  });
 
   // Contact channels dynamic (max 5)
   const canalesDiv = document.getElementById("canales");
@@ -37,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const wrap = document.createElement("div");
     wrap.className = "canal";
     wrap.innerHTML = `
-      <select class="via">
+      <select class="via" name="canal_via[]">
         <option value="">Seleccione...</option>
         <option value="whatsapp">whatsapp</option>
         <option value="telegram">telegram</option>
@@ -46,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <option value="tiktok">tiktok</option>
         <option value="otra">otra</option>
       </select>
-      <input type="text" class="id" placeholder="ID o URL (4-50)" maxlength="50">
+      <input type="text" class="id" name="canal_id[]" placeholder="ID o URL (4-50)" maxlength="50">
       <button type="button" class="rem">Quitar</button>
     `;
     wrap.querySelector(".rem").addEventListener("click", ()=> wrap.remove());
@@ -63,11 +50,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+    input.name = "fotos[]";
     fotosDiv.appendChild(input);
   }
   addFotoBtn.addEventListener("click", addFoto);
-  // Start with one file input
-  addFoto();
+  // Si el servidor no puso ya un input (por error previo), añadimos uno
+  if (!fotosDiv.querySelector('input[type="file"]')) {
+    addFoto();
+  }
 
   // VALIDATIONS (no "required" attributes; JS only)
   const form = document.getElementById("formAviso");
@@ -75,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const siBtn = document.getElementById("siSeguro");
   const noBtn = document.getElementById("noSeguro");
   const errores = document.getElementById("errores");
+  const erroresWrapper = document.getElementById("erroresClienteWrapper");
 
   function showErrors(list){
     errores.innerHTML = "";
@@ -83,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
       li.textContent = e;
       errores.appendChild(li);
     });
-    errores.parentElement.hidden = list.length === 0;
+    if (erroresWrapper) erroresWrapper.hidden = list.length === 0;
   }
 
   form.addEventListener("submit", (e) => {
@@ -91,9 +82,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const err = [];
 
     // Dónde
-    const region = regionSel.value.trim();
+    const region = document.querySelector('select[name="region_id"]').value.trim();
     if (!region) err.push("La región es obligatoria.");
-    const comuna = comunaSel.value.trim();
+    const comuna = document.querySelector('select[name="comuna_id"]').value.trim();
     if (!comuna) err.push("La comuna es obligatoria.");
     const sector = document.getElementById("sector").value.trim();
     if (sector.length > 100) err.push("Sector: largo máximo 100.");
@@ -162,12 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   noBtn.addEventListener("click", ()=> document.getElementById("confirmModal").close());
   siBtn.addEventListener("click", ()=> {
-    // show success message & button to go home
-    const cont = document.getElementById("contenedor");
-    cont.innerHTML = `
-      <h2>Hemos recibido la información de adopción, muchas gracias y suerte!</h2>
-      <p><button id="volverPortada" class="btn">Volver a la portada</button></p>
-    `;
-    document.getElementById("volverPortada").addEventListener("click", ()=> go("index.html"));
+    // En esta versión enviamos realmente el formulario al servidor Flask
+    form.submit();
   });
 });

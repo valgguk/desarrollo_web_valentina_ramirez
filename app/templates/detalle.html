@@ -4,35 +4,48 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Detalle de aviso</title>
-  <link rel="stylesheet" href="styles/styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 </head>
 <body>
 <header>
   <div class="container">
     <h1>Detalle del aviso</h1>
     <nav>
-      <a href="index.html">Portada</a>
-      <a href="listado.html">Listado</a>
-      <a href="estadisticas.html">Estadísticas</a>
+      <a href="{{ url_for('main.index') }}">Portada</a>
+      <a href="{{ url_for('main.listado') }}">Listado</a>
+      <a href="#">Estadísticas</a>
     </nav>
   </div>
 </header>
 <main class="container">
   <section id="detalle" class="section">
-    <h2>Detalles del aviso</h2>
-    <p><strong> Nombre: </strong> <span id="detalle-nombre"></span></p>
-    <p><strong>Email:</strong> <span id="detalle-email"></span></p>
-    <p><strong>Fecha de publicación:</strong> <span id="detalle-fechaPublicacion"></span></p>
-    <p><strong>Fecha de entrega:</strong> <span id="detalle-fechaEntrega"></span></p>
-    <p><strong>Región:</strong> <span id="detalle-region"></span></p>
-    <p><strong>Comuna:</strong> <span id="detalle-comuna"></span></p>
-    <p><strong>Sector:</strong> <span id="detalle-sector"></span></p>
-    <p><strong>Cantidad - Tipo - Edad:</strong> <span id="detalle-cantidad"></span> - <span id="detalle-tipo"></span> - <span id="detalle-edad"></span></p>
-    <p><strong>Contacto:</strong> <span id="detalle-contacto"></span></p>
-    <p><strong>Canales de contacto:</strong> <span id="detalle-canales"></span></p>
-    <p><strong>Descripción:</strong> <span id="detalle-descripcion"></span></p>
+    <h2>Publicación de {{ aviso.nombre }}</h2>
+    <p><strong>Fecha de publicación:</strong> {{ aviso.fecha_ingreso.strftime('%Y-%m-%d %H:%M') }}</p>
+    <p><strong>Fecha de entrega:</strong> {{ aviso.fecha_entrega.strftime('%Y-%m-%d %H:%M') }}</p>
+    <p><strong>Región:</strong> {{ aviso.comuna.region.nombre }}</p>
+    <p><strong>Comuna:</strong> {{ aviso.comuna.nombre }}</p>
+    <p><strong>Sector:</strong> {{ aviso.sector or '' }}</p>
+    <p><strong>Cantidad - Tipo - Edad:</strong>
+      {{ aviso.cantidad }} {{ aviso.tipo }}{% if aviso.cantidad>1 %}s{% endif %},
+      {{ aviso.edad }} {{ 'meses' if aviso.unidad_medida=='m' else 'años' }}
+    </p>
+    <p><strong>Contacto:</strong> {{ aviso.nombre }} — {{ aviso.email }}{% if aviso.celular %} / {{ aviso.celular }}{% endif %}</p>
+    <p><strong>Canales:</strong>
+      {% if aviso.canales %}
+        {{ aviso.canales | map(attribute='nombre') | list | join(', ') }}
+      {% else %}(sin canales){% endif %}
+    </p>
+    <p><strong>Descripción:</strong> {{ aviso.descripcion or '' }}</p>
     <h3>Fotos</h3>
-    <div id="detalle-fotos"></div>
+    <div class="galeria">
+      {% for f in aviso.fotos %}
+        <img src="{{ url_for('static', filename='uploads/' ~ f.ruta_archivo) }}" alt="foto {{ loop.index }}" width="320" class="foto-chica" data-large="{{ url_for('static', filename='uploads/' ~ f.ruta_archivo) }}">
+      {% endfor %}
+    </div>
+    <div class="acciones" style="margin-top:1rem; display:flex; gap:1rem;">
+      <a href="{{ url_for('main.listado') }}">← Volver al listado</a>
+      <a href="{{ url_for('main.index') }}">🏠 Portada</a>
+    </div>
   </section>
 </main>
 
@@ -45,8 +58,19 @@
 </div>
 
 <footer></footer>
-<script src="scripts/data.js"></script>
-<script src="scripts/ui.js"></script>
-<script src="scripts/main.js"></script>
+<script>
+  // Comportamiento modal básico (sin dependencia de main.js ahora)
+  const modal = document.getElementById('modal-foto');
+  const modalImg = document.getElementById('modal-foto-img');
+  const cerrarBtn = document.getElementById('cerrar-modal');
+  document.querySelectorAll('.foto-chica').forEach(img => {
+    img.addEventListener('click', () => {
+      modal.classList.add('visible');
+      modalImg.src = img.dataset.large;
+    });
+  });
+  cerrarBtn.addEventListener('click', ()=> modal.classList.remove('visible'));
+  modal.addEventListener('click', (e)=> { if (e.target === modal) modal.classList.remove('visible'); });
+</script>
 </body>
 </html>

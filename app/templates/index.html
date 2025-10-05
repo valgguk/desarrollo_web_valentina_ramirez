@@ -4,57 +4,75 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Adopta Mascotas — Portada</title>
-  <link rel="stylesheet" href="styles/styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 </head>
 <body>
 <header>
   <div class="container">
-    <h1>Adopta Mascotas — Prototipo</h1>
+    <h1>Adopta Mascotas</h1>
     <nav>
-      <a href="agregar.html">Agregar aviso de adopción</a>
-      <a href="listado.html">Ver listado de adopciones</a>
-      <a href="estadisticas.html">Estadísticas</a>
+      <a href="{{ url_for('main.agregar') }}">Agregar aviso de adopción</a>
+      <a href="{{ url_for('main.listado') }}">Ver listado de adopciones</a>
+      <a href="#estadisticas">Estadísticas</a>
     </nav>
   </div>
 </header>
 <main class="container">
   <section class="section">
-    <h2>¡Hola! Te damos la bienvenida a la aplicación Adopta Mascotas</h2>
-    <p class="small">Este es un prototipo sin servidor, solo HTML, CSS y JavaScript.</p>
+    <h2>Bienvenido</h2>
+    <p class="small">Aplicación de adopción de mascotas. Aquí ves los últimos 5 avisos ingresados.</p>
   </section>
 
-  <section class="section">
-  <h3>Últimos 5 avisos</h3>
-  <table id="ultimos" style="width:100%; border-collapse: collapse; border: 1px solid black;">
-    <thead>
-      <tr>
-        <th>Fecha de publicación</th>
-        <th>Comuna</th>
-        <th>Sector</th>
-        <th>Cantidad - Tipo - Edad</th>
-        <th>Foto</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- aquí JS inserta las filas -->
-    </tbody>
-  </table>
-</section>
+  <section class="section" aria-labelledby="ultimos-heading">
+    <h3 id="ultimos-heading">Últimos 5 avisos</h3>
+    {% if avisos %}
+    <table id="ultimos" class="tabla-listado">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Comuna</th>
+          <th>Sector</th>
+          <th>Cant / Tipo / Edad</th>
+          <th>Foto</th>
+          <th>Detalle</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in avisos %}
+        <tr>
+          <td>{{ a.fecha_ingreso.strftime('%Y-%m-%d %H:%M') if a.fecha_ingreso else '' }}</td>
+          <td>{{ a.comuna.nombre if a.comuna else '' }}</td>
+          <td>{{ a.sector or '' }}</td>
+          <td>{{ a.cantidad }} {{ a.tipo }}(s) — {{ a.edad }} {{ 'meses' if a.unidad_medida=='m' else 'años' }}</td>
+          <td>
+            {% set foto = a.fotos[0] if a.fotos else None %}
+            {% if foto %}
+              <img src="{{ url_for('static', filename='uploads/' ~ foto.ruta_archivo) }}" alt="Foto de {{ a.tipo }}" style="max-width:70px; max-height:70px; object-fit:cover;">
+            {% else %}-{% endif %}
+          </td>
+          <td><a class="btn-link" href="{{ url_for('main.detalle', aviso_id=a.id) }}">Ver</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No hay avisos todavía. <a href="{{ url_for('main.agregar') }}">Agrega el primero</a>.</p>
+    {% endif %}
+  </section>
 
-<p>
+  <section id="estadisticas" class="section">
+    <h3>Estadísticas (placeholder)</h3>
+    <p>Esta sección se completará más adelante.</p>
+  </section>
+
+  <p>
     <a href="https://jigsaw.w3.org/css-validator/check/referer">
-        <img style="border:0;width:88px;height:31px"
-            src="https://jigsaw.w3.org/css-validator/images/vcss"
-            alt="¡CSS Válido!" >
+      <img style="border:0;width:88px;height:31px" src="https://jigsaw.w3.org/css-validator/images/vcss" alt="¡CSS Válido!">
     </a>
-</p>
-
+  </p>
 </main>
 <footer>
-  Valida con W3C (HTML/CSS) — Prototipo educativo.
+  <small>Aplicación educativa — Validar con W3C.</small>
 </footer>
-<script src="scripts/data.js"></script>
-<script src="scripts/ui.js"></script>
-<script src="scripts/main.js"></script>
 </body>
 </html>
