@@ -176,6 +176,7 @@ def agregar():
 
         aviso = AvisoAdopcion(
             comuna_id=comuna.id,
+            fecha_ingreso=datetime.now(), # antes datetime.utcnow()
             sector=sector or None,
             nombre=nombre,
             email=email,

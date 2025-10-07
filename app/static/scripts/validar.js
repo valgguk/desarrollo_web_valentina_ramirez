@@ -1,14 +1,14 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Prefill datetime-local con ahora + 3h solo si el usuario no trajo valor del servidor
+  // Prefill datetime-local con ahora + 4h solo si el usuario no trajo valor del servidor 
+  // Validación exige >= ahora + 3h.
   const fechaInput = document.getElementById("fechaEntrega");
   if (fechaInput && !fechaInput.value) {
-    const dt = new Date(Date.now() + 3*60*60*1000);
-    const toLocalInput = (d) => {
-      const pad = (n) => String(n).padStart(2,"0");
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    };
-    fechaInput.value = toLocalInput(dt);
+    const dt = new Date(Date.now() + 4*60*60*1000);
+    const pad = (n) => String(n).padStart(2, "0");
+    fechaInput.value =
+      `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}` +
+      `T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
   }
 
   // Los selects de región y comuna ahora vienen renderizados por el servidor (Jinja + BD)
@@ -152,15 +152,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const unidad = document.getElementById("unidad").value;
     if (!unidad) err.push("Debe seleccionar unidad (meses/años).");
 
-    const prefill = fechaInput.value;
-    const fechaSel = document.getElementById("fechaEntrega").value;
+    // Fecha (dinámica: ahora + 3h)
+    const fechaSel = document.getElementById("fechaEntrega")?.value;
     if (!fechaSel) err.push("Fecha disponible es obligatoria.");
-    // check format yyyy-mm-ddThh:mm (simple check)
     if (fechaSel && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(fechaSel)) {
       err.push("Fecha disponible: formato inválido (yyyy-mm-ddThh:mm).");
-    }
-    if (fechaSel && prefill && fechaSel < prefill) {
-      err.push("Fecha disponible debe ser >= a la prellenada (ahora + 3h).");
+    } else if (fechaSel) {
+      const selected = new Date(fechaSel);
+      const min = new Date(Date.now() + 3 * 60 * 60 * 1000);
+      if (selected < min) {
+        err.push("Fecha disponible debe ser al menos 3 horas desde ahora.");
+      }
     }
 
     // Descripción opcional
