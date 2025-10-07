@@ -33,16 +33,82 @@ El archivo `requirements.txt` incluye: Flask, Flask_SQLAlchemy, PyMySQL, Pillow 
 
 ---
 ## 5. Crear/Importar el esquema MySQL ( regiones / comunas )
-En MySQL ejecutar (p. ej. desde MySQL Workbench o consola):
+Antes de importar el script SQL, se debe de tener un servidor MySQL corriendo y crear la base de datos y el usuario que usa la aplicación (por defecto en este repositorio usamos `cc5002` / `programacionweb` y la base `tarea2`).
+
+Pasos recomendados (PowerShell / Windows):
+
+1. Iniciar el servicio MySQL (si no está corriendo):
+
+```powershell
+# desde PowerShell con privilegios de administrador
+Start-Service MySQL
+# o el nombre del servicio que tengas instalado (MySQL80, mysql, mariadb, ...)
+```
+
+2. Conectarse al cliente MySQL (usa una cuenta con permisos para crear bases/usuarios, p. ej. root):
+
+```powershell
+mysql -u root -p
+```
+
+3. Dentro del cliente `mysql`, crear la base y el usuario (usa UTF8MB4):
+
 ```sql
+-- crear la base con collation utf8mb4
+CREATE DATABASE IF NOT EXISTS tarea2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- crear/actualizar usuario (ejemplo con contraseña del curso)
+CREATE USER IF NOT EXISTS 'cc5002'@'localhost' IDENTIFIED BY 'programacionweb';
+GRANT ALL PRIVILEGES ON tarea2.* TO 'cc5002'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+4. Salir del cliente root y conectarse con el usuario `cc5002` para ejecutar el script (o usar Workbench):
+
+```powershell
+mysql -u cc5002 -p tarea2
+-- dentro del cliente mysql:
 SOURCE ruta/al/archivo/tarea2/tarea2.sql;
 ```
-El script crea las tablas: `region`, `comuna`, `aviso_adopcion`, `foto`, `contactar_por`.
 
-ENUM relevante (tabla `contactar_por`):
+```powershell
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS tarea2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER IF NOT EXISTS 'cc5002'@'localhost' IDENTIFIED BY 'programacionweb'; GRANT ALL ON tarea2.* TO 'cc5002'@'localhost'; FLUSH PRIVILEGES;"
+mysql -u cc5002 -p tarea2 -e "SOURCE C:/ruta/completa/a/tarea2/tarea2.sql;"
+
+
 ```
-'whatsapp','telegram','X','instagram','tiktok','otra'
+
+5. Importar regiones/comunas en Windows (problemas de codificación y solución)
+- Problema común: PowerShell y el cliente pueden interpretar distintas codificaciones; usar `Get-Content | mysql` puede re‑codificar el texto y producir mojibake (ej. "Regi├â┬│n"). Solución fiable: preservar los bytes del archivo y forzar UTF‑8 en el cliente MySQL.
+
+Pasos recomendados (rápido, PowerShell):
+
+a) (Opcional, limpiar previo)
+```powershell
+mysql -u cc5002 -p -e "USE tarea2; SET FOREIGN_KEY_CHECKS=0; TRUNCATE TABLE comuna; TRUNCATE TABLE region; SET FOREIGN_KEY_CHECKS=1;"
 ```
+
+b) Copiar el SQL a una ruta sin espacios (evita problemas con OneDrive/espacios):
+```powershell
+New-Item -Path C:\temp -ItemType Directory -Force
+Copy-Item "C:\Users\<usuario>\OneDrive\Documentos\uni\app web\desarrollo_web_valentina_ramirez\tarea2\region-comuna.sql" -Destination "C:\temp\region-comuna.sql" -Force
+```
+
+c) Importar preservando bytes (cmd redirection) y forzando utf8mb4:
+```powershell
+# desde PowerShell invocamos cmd para usar la redirección clásica <
+cmd /c "mysql --default-character-set=utf8mb4 -u cc5002 -p tarea2 < C:\temp\region-comuna.sql"
+```
+
+d) Alternativa (cliente interactivo desde la carpeta del repo):
+```powershell
+Set-Location "C:\Users\<usuario>\OneDrive\Documentos\uni\app web\desarrollo_web_valentina_ramirez"
+mysql -u cc5002 -p tarea2
+# dentro del cliente mysql>:
+SET NAMES utf8mb4;
+SOURCE tarea2/region-comuna.sql;
+```
+
 
 ---
 ## 6. Cargar datos maestros ( avisos de ejemplo )
