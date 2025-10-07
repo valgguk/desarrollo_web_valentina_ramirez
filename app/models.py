@@ -22,7 +22,7 @@ class Comuna(db.Model):
 class AvisoAdopcion(db.Model):
     __tablename__ = "aviso_adopcion"
     id = db.Column(db.Integer, primary_key=True)
-    fecha_ingreso = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    fecha_ingreso = db.Column(db.DateTime, default=datetime.now, nullable=False) # antes utcnow
     comuna_id = db.Column(db.Integer, db.ForeignKey("comuna.id"), nullable=False)
     sector = db.Column(db.String(100))
     nombre = db.Column(db.String(200), nullable=False)

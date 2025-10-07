@@ -1,4 +1,5 @@
 # app/config.py
+# app/config.py
 class Config:
     SQLALCHEMY_DATABASE_URI = "mysql+pymysql://cc5002:programacionweb@localhost:3306/tarea2?charset=utf8mb4"
     SQLALCHEMY_TRACK_MODIFICATIONS = False

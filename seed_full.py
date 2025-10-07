@@ -84,6 +84,61 @@ DATA = [
             ("app/static/images/item5_photo2_800x600.png", "item5_photo2_800x600.png")
         ]
     },
+    {
+        "sector": "Fundo Loma Verde",
+        "tipo": "perro",
+        "cantidad": 2,
+        "edad": 5,
+        "unidad_medida": "a",
+        "nombre": "Andrea Yovany",
+        "email": "matcha@gmail.com",
+        "celular": "+569.94561234",
+        "region": "Región de Valparaíso",
+        "comuna": "Algarrobo",
+        "canales": [
+            ("whatsapp", "wa.me/56994561234"),
+            ("instagram", "instagram.com/andrea_lomaverde")
+        ],
+        "fecha_publicacion": "2025-10-13 10:10",
+        "fecha_entrega": "2025-10-24 16:30",
+        "descripcion": "2 pastores alemanes grandes, preciosos, bien portados y muy cariñosos. Buscan familia responsable.",
+        "fotos": [
+            ("app/static/images/item8_photo_1_320x240.png", "item8_photo1_320x240.png"),
+            ("app/static/images/item8_photo_1_800x600.png", "item8_photo1_800x600.png"),
+            ("app/static/images/item8_photo_2_320x240.png", "item8_photo2_320x240.png"),
+            ("app/static/images/item8_photo_2_800x600.png", "item8_photo2_800x600.png"),
+            ("app/static/images/item8_photo_3_320x240.png", "item8_photo3_320x240.png"),
+            ("app/static/images/item8_photo_3_800x600.png", "item8_photo3_800x600.png"),
+            ("app/static/images/item8_photo_4_320x240.png", "item8_photo4_320x240.png"),
+            ("app/static/images/item8_photo_4_800x600.png", "item8_photo4_800x600.png"),
+            ("app/static/images/item8_photo_5_320x240.png", "item8_photo5_320x240.png"),
+            ("app/static/images/item8_photo_5_800x600.png", "item8_photo5_800x600.png")
+        ]
+    },
+    {
+        "sector": "Pasaje El Roble",
+        "tipo": "gato",
+        "cantidad": 1,
+        "edad": 1,
+        "unidad_medida": "m",
+        "nombre": "Sofía Martínez",
+        "email": "sofia.martinez@example.com",
+        "celular": "+569.77881234",
+        "region": "Región del Biobío",
+        "comuna": "Concepción",
+        "canales": [
+            ("telegram", "@sofiagatos")
+        ],
+        "fecha_publicacion": "2025-08-12 18:40",
+        "fecha_entrega": "2025-08-16 12:00",
+        "descripcion": "Gatito gris de 1 mes, muy tranquilo y dócil. Ideal para departamento, come sólido blando.",
+        "fotos": [
+            ("app/static/images/item6_photo_1_320x240.png", "item6_photo1_320x240.png"),
+            ("app/static/images/item6_photo_1_800x600.png", "item6_photo1_800x600.png"),
+            ("app/static/images/item6_photo_2_320x240.png", "item6_photo2_320x240.png"),
+            ("app/static/images/item6_photo_2_800x600.png", "item6_photo2_800x600.png")
+        ]
+    },
 ]
 
 def main():

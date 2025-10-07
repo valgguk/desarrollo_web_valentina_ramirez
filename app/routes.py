@@ -1,12 +1,13 @@
 # app/routes.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, send_from_directory
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, send_from_directory, session
 from .models import db, AvisoAdopcion, Comuna, Region, Foto, ContactarPor
 from sqlalchemy import desc
 from datetime import datetime, timedelta
 import os, secrets
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 import re
+import unicodedata
 
 bp = Blueprint("main", __name__)
 
@@ -21,10 +22,27 @@ def allowed(filename: str, allowed_exts: set[str] | None = None):
 def _plural(num: int, singular: str, plural: str):
     return f"{num} {singular if num == 1 else plural}"
 
-def _clean_text(value: str | None, max_len: int):
+CONTROL_CHARS_RE = re.compile(r'[\x00-\x08\x0B-\x1F\x7F]')
+WHITESPACE_RE = re.compile(r'\s+')
+
+def _clean_text(value: str | None, max_len: int, allow_newlines: bool = False):
     if not value:
         return ""
-    value = value.strip().replace('\x00','')  # remove stray nulls
+    # Normaliza Unicode (previene trucos con combinaciones)
+    value = unicodedata.normalize("NFC", value)
+    # Elimina caracteres de control (excepto \n si se permite)
+    cleaned = []
+    for ch in value:
+        if ch in ("\n", "\r"):
+            if allow_newlines and ch == "\n":
+                cleaned.append("\n")
+            continue
+        if ord(ch) < 32 or ord(ch) == 127:
+            continue
+        cleaned.append(ch)
+    value = "".join(cleaned)
+    # Colapsa espacios
+    value = WHITESPACE_RE.sub(" ", value).strip()
     if len(value) > max_len:
         value = value[:max_len]
     return value
@@ -35,6 +53,11 @@ def _foto_base_name(fname: str) -> str:
     antes de la extensión para identificar la 'foto lógica'.
     """
     return re.sub(r'_(?:large|small|\d+x\d+)(?=\.)', '', fname)
+
+@bp.before_app_request
+def ensure_csrf_token():
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(16)
 
 @bp.route("/")
 def index():
@@ -53,6 +76,12 @@ def agregar():
         files = request.files.getlist("fotos[]")
         errores = []
 
+        # CSRF check
+        token_form = request.form.get("csrf_token")
+        if not token_form or token_form != session.get("csrf_token"):
+            flash("CSRF token inválido.", "error")
+            return redirect(url_for("main.agregar"))
+
         # Región / Comuna
         region_id = form.get("region_id")
         comuna_id = form.get("comuna_id")
@@ -65,7 +94,6 @@ def agregar():
             errores.append("Nombre: 3-200.")
 
         email = _clean_text(form.get("email"), 100)
-        import re
         if not email or len(email) > 100:
             errores.append("Email requerido <=100.")
         elif not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
@@ -119,52 +147,78 @@ def agregar():
         if len(descripcion) > 500:
             errores.append("Descripción máx 500 caracteres.")
 
-        vias = request.form.getlist("canal_via[]")
-        ids = request.form.getlist("canal_id[]")
-        canales = []
-        for via, ident in zip(vias, ids):
-            via = (via or "").strip()
-            ident = (ident or "").strip()
-            if via:
-                if not (4 <= len(ident) <= 50):
-                    errores.append(f"Canal {via}: identificador 4-50.")
-                canales.append((via, ident))
-        if len(canales) > 5:
+        # Canales (sanitización + regex)
+        canal_vias = request.form.getlist("canal_via[]")
+        canal_ids = request.form.getlist("canal_id[]")
+        CANAL_VIA_PERMITIDOS = {"whatsapp","telegram","X","instagram","tiktok","otra"}
+        CANAL_ID_RE = re.compile(r'^[A-Za-z0-9_.@/+:-]{4,50}$')
+        canales_limpios = []
+        for via, ident in zip(canal_vias, canal_ids):
+            via = _clean_text(via, 15)
+            ident = _clean_text(ident, 50)
+            if not via or not ident:
+                continue
+            if via not in CANAL_VIA_PERMITIDOS:
+                errores.append(f"Canal '{via}' inválido.")
+                continue
+            if not CANAL_ID_RE.match(ident):
+                errores.append(f"ID canal inválido: {ident}")
+                continue
+            canales_limpios.append((via, ident))
+        if len(canales_limpios) > 5:
             errores.append("Máx 5 canales.")
+        # Imágenes reforzadas
+        ALLOWED_EXT = {"png","jpg","jpeg","gif","webp"}
+        MAX_FILE_SIZE = 2 * 1024 * 1024  # 2MB
+        MAX_DIM = (4000, 4000)
 
-        allowed_exts = set(current_app.config.get("ALLOWED_IMAGE_EXTENSIONS",
-                                                 {"jpg","jpeg","png","gif","webp"}))
+        fotos_validas = []
+        for storage in files:
+            if not storage or storage.filename == "":
+                continue
 
-        valid_files = [f for f in files if f and f.filename]
-        if len(valid_files) == 0:
-            errores.append("Al menos 1 foto requerida.")
-        if len(valid_files) > 5:
-            errores.append("Máx 5 fotos.")
-        for f in valid_files:
-            filename = f.filename
-            ext = filename.rsplit(".",1)[-1].lower() if "." in filename else ""
-            mimetype = (f.mimetype or "").lower()
+            filename = secure_filename(storage.filename)
+            if "." not in filename:
+                errores.append(f"Archivo sin extensión: {filename}")
+                continue
 
-            if not allowed(filename, allowed_exts):
+            ext_lower = filename.rsplit(".",1)[1].lower()
+            if ext_lower not in ALLOWED_EXT:
                 errores.append(f"Extensión no permitida: {filename}")
                 continue
-            if ext == "pdf" or "pdf" in mimetype:
-                errores.append(f"Archivo no es una imagen válida: {filename}")
+
+             # Tamaño (bytes)
+            storage.stream.seek(0, 2)  # al final
+            size = storage.stream.tell()
+            storage.stream.seek(0)
+            if size > MAX_FILE_SIZE:
+                errores.append(f"Imagen >2MB: {filename}")
                 continue
-            
-            f.stream.seek(0)
+
+            # Validar formato y dimensiones con Pillow
             try:
-                img_probe = Image.open(f.stream)
-                img_probe.verify()
-                f.stream.seek(0)
-                with Image.open(f.stream) as _tmp:
-                    _tmp.load()
-            except UnidentifiedImageError:
-                errores.append(f"Archivo no es una imagen válida: {filename}")
-            except Exception:
-                errores.append(f"Error al leer imagen: {filename}")
-            finally:
-                f.stream.seek(0)
+                img = Image.open(storage.stream)
+                img.verify()  # chequeo rápido
+            except (UnidentifiedImageError, OSError):
+                errores.append(f"Imagen corrupta o no válida: {filename}")
+                storage.stream.seek(0)
+                continue
+
+            # Reabrir porque verify deja el archivo en estado no usable
+            storage.stream.seek(0)
+            with Image.open(storage.stream) as img2:
+                if img2.width > MAX_DIM[0] or img2.height > MAX_DIM[1]:
+                    errores.append(f"Imagen excede 4000px: {filename}")
+                    storage.stream.seek(0)
+                    continue
+
+            storage.stream.seek(0)
+            fotos_validas.append(storage)
+
+        if len(fotos_validas) == 0:
+            errores.append("Al menos 1 foto requerida.")
+        if len(fotos_validas) > 5:
+            errores.append("Máx 5 fotos.")
 
         if errores:
             flash("Hay errores en el formulario.", "error")
@@ -172,8 +226,8 @@ def agregar():
                                    regiones=regiones,
                                    errores=errores,
                                    data=form,
-                                   canales=canales)
-
+                                   canales=canales_limpios)
+        # Crear aviso
         aviso = AvisoAdopcion(
             comuna_id=comuna.id,
             fecha_ingreso=datetime.now(), # antes datetime.utcnow()
@@ -191,33 +245,64 @@ def agregar():
         db.session.add(aviso)
         db.session.flush()
 
-        for via, ident in canales:
+        # Canales
+        for via, ident in canales_limpios:
             c = ContactarPor(nombre=via, identificador=ident, actividad_id=aviso.id)
             db.session.add(c)
 
+        # Generación variantes imagen (upscale)
+        def generar_variant(img_orig: Image.Image, tw: int, th: int,
+                            mode: str = "contain", upscale: bool = True,
+                            bg=(255,255,255)):
+            if mode == "cover":
+                return ImageOps.fit(img_orig, (tw, th), Image.LANCZOS, centering=(0.5,0.5))
+            # contain
+            w, h = img_orig.size
+            ratio_w = tw / w
+            ratio_h = th / h
+            r = min(ratio_w, ratio_h)
+            if r > 1 and not upscale:
+                r = 1
+            new_w = max(1, int(w * r))
+            new_h = max(1, int(h * r))
+            img_resized = img_orig.resize((new_w, new_h), Image.LANCZOS)
+            canvas = Image.new("RGB", (tw, th), bg)
+            canvas.paste(img_resized, ((tw - new_w)//2, (th - new_h)//2))
+            return canvas
+        
+        MODE = "contain"   # otra opcion : "cover"
+        UPSCALE = True
+        sizes = {
+            "_800x600": (800, 600),
+            "_320x240": (320, 240),
+        }
+
+        # Guardar imágenes (solo registro small)
         upload_dir = current_app.config["UPLOAD_FOLDER"]
         os.makedirs(upload_dir, exist_ok=True)
-        for f in valid_files:
+
+        for f in fotos_validas:
             safe_name = secure_filename(f.filename)
             token = secrets.token_hex(8)
-            name_no_ext, ext = os.path.splitext(safe_name)
+            name_no_ext, ext_dot = os.path.splitext(safe_name)
+            
+            f.stream.seek(0)
             img = Image.open(f.stream)
-            if ext.lower() in ['.jpg', '.jpeg', '.webp']:
+            if ext_dot.lower() in ('.jpg', '.jpeg', '.webp'):
                 img = img.convert('RGB')
-            sizes = { '_320x240': (320,240), '_800x600': (800,600) }
+            
             for suf, (tw,th) in sizes.items():
-                resized = img.copy()
-                resized.thumbnail((tw,th))
-                canvas = Image.new('RGB', (tw,th), (255,255,255))
-                rx, ry = resized.size
-                canvas.paste(resized, ((tw-rx)//2, (th-ry)//2))
-                variant_filename = f"{token}_{name_no_ext}{suf}{ext.lower()}"
+                variant_img = generar_variant(img, tw, th,
+                                              mode=MODE, upscale=UPSCALE)
+                variant_filename = f"{token}_{name_no_ext}{suf}{ext_dot.lower()}"
                 out_path = os.path.join(upload_dir, variant_filename)
-                canvas.save(out_path, quality=90)
-                if suf == '_320x240':
-                    db.session.add(Foto(ruta_archivo=variant_filename, 
-                                        nombre_archivo=safe_name, 
-                                        actividad_id=aviso.id))
+                variant_img.save(out_path, quality=90)
+                if suf == "_320x240":
+                    db.session.add(Foto(
+                        ruta_archivo=variant_filename,
+                        nombre_archivo=safe_name,
+                        actividad_id=aviso.id
+                    ))
 
         db.session.commit()
         flash("Aviso agregado exitosamente.", "success")
