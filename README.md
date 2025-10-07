@@ -211,20 +211,11 @@ ALLOWED_IMAGE_EXTENSIONS = {"png","jpg","jpeg","gif","webp"}
 Modificar ahí si cambia usuario/clave o base.
 
 ---
-## 14. Posibles mejoras futuras
-- Base template (`base.html`) para evitar repetición en headers/nav.
-- Tests unitarios (por ejemplo usando pytest + Flask testing client).
-- Validación de tamaño real de imágenes y compresión.
-- Paginación configurable por query param.
-- Soporte de internacionalización.
-- Reemplazar JS inline del modal por módulo reutilizable.
-
----
-## 15. Licencias
+## 14. Licencias
 Imágenes de ejemplo: procedentes de Pexels (uso libre). Uso estrictamente educativo.
 
 ---
-## 16. Ejecución rápida (resumen)
+## 15. Ejecución rápida (resumen)
 ```powershell
 git clone <URL>
 cd desarrollo_web_valentina_ramirez
@@ -236,9 +227,17 @@ python seed_full.py
 python run.py
 # Navegar a http://127.0.0.1:5000/
 ```
+---
+## 16. Validación HTML (W3C)
+Al validar directamente los archivos de plantilla Jinja aparecían “errores” como:
+
+Bad value {{ url_for('static', filename='styles/styles.css') }} … Illegal character '{'
+
+Estos no corresponden al HTML real; el validador recibe las llaves de Jinja porque el archivo no fue renderizado por Flask. Se deja constancia de que los avisos iniciales eran falsos positivos propios del uso de plantillas.
+
 
 ---
-## 18. Contacto
+## 17. Contacto
 Proyecto académico. Para revisión docente: revisar secciones 9–12 para criterios de corrección.
 
 

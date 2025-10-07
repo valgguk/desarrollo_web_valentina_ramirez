@@ -84,18 +84,24 @@
   </p>
   <!-- Modal para ampliar imagen en portada -->
   <div id="modal-index" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); align-items:center; justify-content:center;">
-    <div style="position:relative; max-width:90%;">
+    <div style="position:relative; max-width:90%; max-height:90%;">
       <button id="cerrar-modal-index" style="position:absolute; top:-10px; right:-10px; background:#fff; border:1px solid #333; cursor:pointer;">✕</button>
-      <img id="modal-index-img" src="" alt="Imagen grande" style="max-width:100%; height:auto; display:block;">
+      <img 
+        id="modal-index-img" 
+        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+        alt="Imagen grande" 
+        style="max-width:100%; height:auto; display:block; border-radius:4px;">
     </div>
   </div>
 </main>
 <footer>
   <small>Aplicación educativa — Validar con W3C.</small>
 </footer>
-</body>
+
 <script>
   document.addEventListener('DOMContentLoaded', ()=>{
+    const PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+
     const flash = document.getElementById('flash-overlay');
     if (flash){
       setTimeout(()=>{
@@ -117,17 +123,26 @@
     const modal = document.getElementById('modal-index');
     const modalImg = document.getElementById('modal-index-img');
     const cerrar = document.getElementById('cerrar-modal-index');
-    function abrir(src){ modalImg.src = src; modal.style.display='flex'; }
-    function cerrarModal(){ modal.style.display='none'; modalImg.src=''; }
+
+    function abrir(src){ 
+      modalImg.src = src || PLACEHOLDER;
+      modal.style.display='flex'; 
+    }
+    function cerrarModal(){ 
+      modal.style.display='none'; 
+      modalImg.src=PLACEHOLDER; // nunca vacío (evita error W3C)
+    }
+
     cerrar.addEventListener('click', cerrarModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) cerrarModal(); });
+    
     document.querySelectorAll('img.thumb').forEach(img=>{
       img.addEventListener('click', (e)=>{
         e.stopPropagation();
-        const large = img.dataset.large || img.src; // fallback
-        abrir(large);
+        abrir(img.dataset.large || img.src);
       });
     });
   });
 </script>
+</body>
 </html>
