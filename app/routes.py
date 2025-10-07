@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import os, secrets
 from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
+import re
 
 bp = Blueprint("main", __name__)
 
@@ -27,6 +28,13 @@ def _clean_text(value: str | None, max_len: int):
     if len(value) > max_len:
         value = value[:max_len]
     return value
+
+def _foto_base_name(fname: str) -> str:
+    """
+    Elimina sufijos de variante (_large, _small) o dimensiones (_800x600, _320x240)
+    antes de la extensión para identificar la 'foto lógica'.
+    """
+    return re.sub(r'_(?:large|small|\d+x\d+)(?=\.)', '', fname)
 
 @bp.route("/")
 def index():
@@ -216,22 +224,39 @@ def agregar():
 
     return render_template("agregar.html", regiones=regiones)
 
-@bp.route("/avisos")
-def listado():
-    page = max(1, int(request.args.get("page", 1)))
-    per_page = 5
-    paginated = (AvisoAdopcion.query
-                 .order_by(AvisoAdopcion.fecha_ingreso.desc())
-                 .paginate(page=page, per_page=per_page, error_out=False))
-    return render_template("listado.html", page=paginated, plural=_plural)
-
-
 @bp.route("/aviso/<int:aviso_id>")
 def detalle(aviso_id):
     aviso = (AvisoAdopcion.query
              .filter_by(id=aviso_id)
              .first_or_404())
     return render_template("detalle.html", aviso=aviso, plural=_plural)
+
+@bp.route("/avisos")
+@bp.route("/listado")
+def listado():
+    page_num = request.args.get("page", 1, type=int)
+    per_page = 5
+    paginated = (AvisoAdopcion.query
+                 .order_by(AvisoAdopcion.fecha_ingreso.desc())
+                 .paginate(page=page_num, per_page=per_page, error_out=False))
+
+    for aviso in paginated.items:
+        unicas = {}
+        for foto in aviso.fotos:
+            fname = (getattr(foto, 'nombre_archivo', None)
+                     or getattr(foto, 'ruta_archivo', None)
+                     or getattr(foto, 'filename', '')
+                     or '')
+            base = _foto_base_name(fname)
+            if base not in unicas or ('_800x600' in fname or '_large' in fname):
+                unicas[base] = foto
+        aviso.fotos_unicas = list(unicas.values())
+        aviso.fotos_unicas_count = len(unicas)
+
+    return render_template("listado.html",
+                           page=paginated,
+                           plural=_plural)
+
 
 @bp.route("/estadisticas")
 def estadisticas():
