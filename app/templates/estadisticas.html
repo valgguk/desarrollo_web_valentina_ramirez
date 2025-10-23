@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Estadísticas</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
 <body>
 <header>
@@ -19,19 +20,83 @@
 </header>
 <main class="container">
   <section class="section">
-    <h2>Gráfico de líneas — avisos por día</h2>
-    <img src="{{ url_for('main.charts_static', filename='line_avisos_por_dia.png') }}" alt="Línea: avisos por día" width="640" height="480">
+    <div id="grafico-lineas" style="height:400px;"></div>
   </section>
   <section class="section">
-    <h2>Gráfico de torta — total por tipo</h2>
-    <img src="{{ url_for('main.charts_static', filename='pie_tipo.png') }}" alt="Torta: total por tipo" width="640" height="480">
+    <div id="grafico-torta" style="height:400px;"></div>
   </section>
   <section class="section">
-    <h2>Gráfico de barras — gatos vs perros por mes</h2>
-    <img src="{{ url_for('main.charts_static', filename='bar_gatos_perros.png') }}" alt="Barras: gatos vs perros por mes" width="640" height="480">
+    <div id="grafico-barras" style="height:400px;"></div>
   </section>
   <p><a href="{{ url_for('main.index') }}">← Volver a la portada</a></p>
 </main>
 <footer></footer>
+
+<script>
+  // ==================== Gráfico de líneas ====================
+  fetch('/api/stats/avisos_por_dia')
+    .then(res => res.json())
+    .then(data => {
+      const categorias = data.map(d => d.dia);
+      const valores = data.map(d => d.total);
+      
+      Highcharts.chart('grafico-lineas', {
+        chart: { type: 'line' },
+        title: { text: 'Avisos por día' },
+        xAxis: { categories: categorias, title: { text: 'Día' } },
+        yAxis: { title: { text: 'Cantidad de avisos' } },
+        series: [{ name: 'Avisos', data: valores }]
+      });
+    })
+    .catch(err => {
+      document.getElementById('grafico-lineas').innerHTML = '<p style="color:red;">Error cargando datos.</p>';
+      console.error(err);
+    });
+
+  // ==================== Gráfico de torta ====================
+  fetch('/api/stats/total_por_tipo')
+    .then(res => res.json())
+    .then(data => {
+      const seriesData = data.map(d => ({ name: d.tipo, y: d.total }));
+      
+      Highcharts.chart('grafico-torta', {
+        chart: { type: 'pie' },
+        title: { text: 'Cantidad de avisos por tipo' },
+        series: [{
+          name: 'Avisos',
+          colorByPoint: true,
+          data: seriesData
+        }]
+      });
+    })
+    .catch(err => {
+      document.getElementById('grafico-torta').innerHTML = '<p style="color:red;">Error cargando datos.</p>';
+      console.error(err);
+    });
+
+  // ==================== Gráfico de barras ====================
+  fetch('/api/stats/gatos_perros_por_mes')
+    .then(res => res.json())
+    .then(data => {
+      const meses = data.map(d => d.mes);
+      const gatos = data.map(d => d.gatos);
+      const perros = data.map(d => d.perros);
+      
+      Highcharts.chart('grafico-barras', {
+        chart: { type: 'column' },
+        title: { text: 'Gatos vs Perros por mes' },
+        xAxis: { categories: meses, title: { text: 'Mes' } },
+        yAxis: { title: { text: 'Cantidad de avisos' } },
+        series: [
+          { name: 'Gatos', data: gatos },
+          { name: 'Perros', data: perros }
+        ]
+      });
+    })
+    .catch(err => {
+      document.getElementById('grafico-barras').innerHTML = '<p style="color:red;">Error cargando datos.</p>';
+      console.error(err);
+    });
+</script>
 </body>
 </html>

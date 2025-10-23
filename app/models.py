@@ -37,6 +37,7 @@ class AvisoAdopcion(db.Model):
     comuna = db.relationship("Comuna", back_populates="avisos")
     fotos = db.relationship("Foto", back_populates="aviso", cascade="all, delete-orphan", foreign_keys='Foto.actividad_id')
     canales = db.relationship("ContactarPor", back_populates="aviso", cascade="all, delete-orphan", foreign_keys='ContactarPor.actividad_id')
+    comentarios = db.relationship("Comentario", back_populates="aviso", cascade="all, delete-orphan")
 
 class Foto(db.Model):
     __tablename__ = "foto"
@@ -56,3 +57,12 @@ class ContactarPor(db.Model):
     identificador = db.Column(db.String(150), nullable=False)
     actividad_id = db.Column(db.Integer, db.ForeignKey("aviso_adopcion.id"), nullable=False)
     aviso = db.relationship("AvisoAdopcion", back_populates="canales")
+
+class Comentario(db.Model):
+    __tablename__ = "comentario"
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(80), nullable=False)
+    texto = db.Column(db.String(300), nullable=False)
+    fecha = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    aviso_id = db.Column(db.Integer, db.ForeignKey("aviso_adopcion.id"), nullable=False)
+    aviso = db.relationship("AvisoAdopcion", back_populates="comentarios")

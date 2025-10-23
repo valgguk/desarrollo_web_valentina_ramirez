@@ -1,7 +1,7 @@
 # app/routes.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, send_from_directory, session
-from .models import db, AvisoAdopcion, Comuna, Region, Foto, ContactarPor
-from sqlalchemy import desc
+from .models import db, AvisoAdopcion, Comuna, Region, Foto, ContactarPor, Comentario
+from sqlalchemy import desc, func
 from datetime import datetime, timedelta
 import os, secrets
 from PIL import Image, ImageOps, UnidentifiedImageError
@@ -366,3 +366,125 @@ def charts_static(filename):
     import os
     charts_dir = os.path.join(current_app.root_path, '..', 'charts')
     return send_from_directory(charts_dir, filename)
+
+# ==================== APIs de Comentarios ====================
+
+@bp.route("/api/comentarios", methods=["POST"])
+def api_agregar_comentario():
+    """Agregar un comentario a un aviso de adopción"""
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Datos inválidos"}), 400
+    
+    # CSRF check
+    token = data.get("csrf_token")
+    if not token or token != session.get("csrf_token"):
+        return jsonify({"error": "CSRF token inválido"}), 403
+    
+    aviso_id = data.get("aviso_id")
+    nombre = _clean_text(data.get("nombre"), 80)
+    texto = _clean_text(data.get("texto"), 300, allow_newlines=True)
+    
+    errores = []
+    
+    # Validar aviso existe
+    aviso = AvisoAdopcion.query.get(aviso_id)
+    if not aviso:
+        errores.append("Aviso no encontrado")
+    
+    # Validar nombre (3-80)
+    if not nombre or len(nombre) < 3 or len(nombre) > 80:
+        errores.append("Nombre: entre 3 y 80 caracteres")
+    
+    # Validar texto (5-300)
+    if not texto or len(texto) < 5 or len(texto) > 300:
+        errores.append("Texto: entre 5 y 300 caracteres")
+    
+    if errores:
+        return jsonify({"error": ", ".join(errores)}), 400
+    
+    # Crear comentario
+    comentario = Comentario(
+        nombre=nombre,
+        texto=texto,
+        aviso_id=aviso_id,
+        fecha=datetime.now()
+    )
+    db.session.add(comentario)
+    db.session.commit()
+    
+    return jsonify({
+        "id": comentario.id,
+        "nombre": comentario.nombre,
+        "texto": comentario.texto,
+        "fecha": comentario.fecha.strftime("%Y-%m-%d %H:%M:%S")
+    }), 201
+
+@bp.route("/api/comentarios/<int:aviso_id>", methods=["GET"])
+def api_listar_comentarios(aviso_id):
+    """Obtener comentarios de un aviso de adopción"""
+    comentarios = (Comentario.query
+                   .filter_by(aviso_id=aviso_id)
+                   .order_by(Comentario.fecha.desc())
+                   .all())
+    
+    return jsonify([{
+        "id": c.id,
+        "nombre": c.nombre,
+        "texto": c.texto,
+        "fecha": c.fecha.strftime("%Y-%m-%d %H:%M:%S")
+    } for c in comentarios])
+
+# ==================== APIs de Estadísticas ====================
+
+@bp.route("/api/stats/avisos_por_dia", methods=["GET"])
+def api_avisos_por_dia():
+    """Gráfico de líneas: avisos por día"""
+    resultados = (db.session.query(
+        func.date(AvisoAdopcion.fecha_ingreso).label('dia'),
+        func.count(AvisoAdopcion.id).label('total')
+    )
+    .group_by(func.date(AvisoAdopcion.fecha_ingreso))
+    .order_by('dia')
+    .all())
+    
+    datos = [{"dia": str(r.dia), "total": r.total} for r in resultados]
+    return jsonify(datos)
+
+@bp.route("/api/stats/total_por_tipo", methods=["GET"])
+def api_total_por_tipo():
+    """Gráfico de torta: total por tipo (gato/perro)"""
+    resultados = (db.session.query(
+        AvisoAdopcion.tipo,
+        func.count(AvisoAdopcion.id).label('total')
+    )
+    .group_by(AvisoAdopcion.tipo)
+    .all())
+    
+    datos = [{"tipo": r.tipo, "total": r.total} for r in resultados]
+    return jsonify(datos)
+
+@bp.route("/api/stats/gatos_perros_por_mes", methods=["GET"])
+def api_gatos_perros_por_mes():
+    """Gráfico de barras: gatos vs perros por mes"""
+    # Usar DATE_FORMAT para MySQL en vez de strftime (SQLite)
+    resultados = (db.session.query(
+        func.date_format(AvisoAdopcion.fecha_ingreso, '%Y-%m').label('mes'),
+        AvisoAdopcion.tipo,
+        func.count(AvisoAdopcion.id).label('total')
+    )
+    .group_by('mes', AvisoAdopcion.tipo)
+    .order_by('mes')
+    .all())
+    
+    datos = {}
+    for r in resultados:
+        mes = r.mes
+        if mes not in datos:
+            datos[mes] = {"mes": mes, "gatos": 0, "perros": 0}
+        if r.tipo == "gato":
+            datos[mes]["gatos"] = r.total
+        elif r.tipo == "perro":
+            datos[mes]["perros"] = r.total
+    
+    return jsonify(list(datos.values()))
