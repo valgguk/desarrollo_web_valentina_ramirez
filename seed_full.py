@@ -15,7 +15,7 @@ DATA = [
         "nombre": "María López", "email": "maria@example.com", "celular": "+569.12345678",
         "region": "Región Metropolitana de Santiago", "comuna": "Santiago",
     "canales": [("whatsapp", "wa.me/56912345678")],
-        "fecha_publicacion": "2025-08-18 12:00", "fecha_entrega": "2025-08-25 15:05",
+        "fecha_publicacion": "2025-07-17 12:00", "fecha_entrega": "2026-01-10 15:05",
         "descripcion": "gatito cariñoso encontrado en campus",
         "fotos": [
             ("app/static/images/item1_photo1_320x240.png", "item1_photo1_320x240.png"),
@@ -30,7 +30,7 @@ DATA = [
         "nombre": "Pedro Pérez", "email": "pedro@example.com", "celular": "+569.23456789",
         "region": "Región Metropolitana de Santiago", "comuna": "Providencia",
     "canales": [("instagram", "instagram.com/pedro")],
-        "fecha_publicacion": "2025-08-17 09:30", "fecha_entrega": "2025-08-24 12:35",
+        "fecha_publicacion": "2025-09-20 09:30", "fecha_entrega": "2025-09-30 12:35",
         "descripcion": "perritos hermanos, muy juguetones",
         "fotos": [
             ("app/static/images/item2_photo1_320x240.png", "item2_photo1_320x240.png"),
@@ -45,7 +45,7 @@ DATA = [
         "nombre": "Valentina R.", "email": "valentina@example.com", "celular": None,
         "region": "Región Metropolitana de Santiago", "comuna": "Ñuñoa",
     "canales": [("telegram", "@valentina")],
-        "fecha_publicacion": "2025-08-16 14:45", "fecha_entrega": "2025-08-17 17:47",
+        "fecha_publicacion": "2025-09-20 14:45", "fecha_entrega": "2025-12-17 17:47",
         "descripcion": "tres gatitos rescatados",
         "fotos": [
             ("app/static/images/item3_photo1_320x240.png", "item3_photo1_320x240.png"),
@@ -60,7 +60,7 @@ DATA = [
         "nombre": "Ana Díaz", "email": "ana@example.com", "celular": "+569.87654321",
         "region": "Región de Valparaíso", "comuna": "Valparaíso",
     "canales": [("X", "x.com/anad")],  # 'X' se mantiene exactamente así (mayúscula)
-        "fecha_publicacion": "2025-08-15 11:15", "fecha_entrega": "2025-08-20 15:15",
+        "fecha_publicacion": "2025-07-17 11:15", "fecha_entrega": "2025-08-20 15:15",
         "descripcion": "perro adulto esterilizado",
         "fotos": [
             ("app/static/images/item4_photo1_320x240.png", "item4_photo1_320x240.png"),
@@ -75,7 +75,7 @@ DATA = [
         "nombre": "Luis F.", "email": "luis@example.com", "celular": None,
         "region": "Región de Valparaíso", "comuna": "Viña del Mar",
     "canales": [("otra", "sitio.luis.cl/adopta")],
-        "fecha_publicacion": "2025-08-14 13:20", "fecha_entrega": "2025-08-21 17:20",
+        "fecha_publicacion": "2025-07-17 13:20", "fecha_entrega": "2025-08-21 17:20",
         "descripcion": "gato muy tranquilo",
         "fotos": [
             ("app/static/images/item5_photo1_320x240.png", "item5_photo1_320x240.png"),
@@ -99,7 +99,7 @@ DATA = [
             ("whatsapp", "wa.me/56994561234"),
             ("instagram", "instagram.com/andrea_lomaverde")
         ],
-        "fecha_publicacion": "2025-10-13 10:10",
+        "fecha_publicacion": "2025-10-20 10:10",
         "fecha_entrega": "2025-10-24 16:30",
         "descripcion": "2 pastores alemanes grandes, preciosos, bien portados y muy cariñosos. Buscan familia responsable.",
         "fotos": [
@@ -129,8 +129,8 @@ DATA = [
         "canales": [
             ("telegram", "@sofiagatos")
         ],
-        "fecha_publicacion": "2025-08-12 18:40",
-        "fecha_entrega": "2025-08-16 12:00",
+        "fecha_publicacion": "2025-10-16 18:40",
+        "fecha_entrega": "2026-03-16 12:00",
         "descripcion": "Gatito gris de 1 mes, muy tranquilo y dócil. Ideal para departamento, come sólido blando.",
         "fotos": [
             ("app/static/images/item6_photo_1_320x240.png", "item6_photo1_320x240.png"),

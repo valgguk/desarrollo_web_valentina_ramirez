@@ -235,9 +235,24 @@ Bad value {{ url_for('static', filename='styles/styles.css') }} … Illegal char
 
 Estos no corresponden al HTML real; el validador recibe las llaves de Jinja porque el archivo no fue renderizado por Flask. Se deja constancia de que los avisos iniciales eran falsos positivos propios del uso de plantillas.
 
-
 ---
 ## 17. Contacto
 Proyecto académico. Para revisión docente: revisar secciones 9–12 para criterios de corrección.
+
+---
+# Tarea 3 - Desarrollo Web
+
+## Bibliotecas externas utilizadas
+
+- **Highcharts** (v11): Para generación de gráficos dinámicos
+  - Licencia: Gratis para uso educativo y personal
+  - https://www.highcharts.com/
+  - Usada para: Gráfico de líneas, torta y barras en estadísticas
+
+## Tecnologías
+- Python 3.11+ con Flask
+- MySQL 8.0
+- JavaScript ES6+ con Fetch API
+- Highcharts 11
 
 

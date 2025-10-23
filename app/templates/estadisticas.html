@@ -49,8 +49,8 @@
       });
     })
     .catch(err => {
-      document.getElementById('grafico-lineas').innerHTML = '<p style="color:red;">Error cargando datos.</p>';
-      console.error(err);
+      document.getElementById('grafico-lineas').innerHTML = '<p style="color:red;">⚠️ Error cargando datos del gráfico de líneas. Intente recargar la página.</p>';
+      console.error('Error en gráfico de líneas:', err);
     });
 
   // ==================== Gráfico de torta ====================
