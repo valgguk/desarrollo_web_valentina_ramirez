@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación de Avisos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #ddd; padding: 0.75rem; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        button { padding: 0.5rem 1rem; background: #2196F3; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #0b7dda; }
+        #mensaje { margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none; }
+        .error { background: #f44336; color: white; }
+        .success { background: #4CAF50; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Evaluación de Avisos de Adopción</h1>
+    
+    <div id="mensaje"></div>
+    
+    <table id="tabla-avisos">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha Publicación</th>
+                <th>Sector</th>
+                <th>Cantidad Tipo Edad</th>
+                <th>Comuna</th>
+                <th>Nota</th>
+                <th>Evaluar</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-avisos">
+            <!-- Cargado dinámicamente con JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        const API_BASE = '/evaluacion/api';
+        
+        // Cargar avisos al inicio
+        document.addEventListener('DOMContentLoaded', cargarAvisos);
+        
+        async function cargarAvisos() {
+            try {
+                const response = await fetch(`${API_BASE}/avisos`);
+                const avisos = await response.json();
+                
+                const tbody = document.getElementById('tbody-avisos');
+                tbody.innerHTML = '';
+                
+                avisos.forEach(aviso => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${aviso.id}</td>
+                        <td>${aviso.fechaPublicacion}</td>
+                        <td>${aviso.sector}</td>
+                        <td>${aviso.descripcionMascota}</td>
+                        <td>${aviso.comuna}</td>
+                        <td id="nota-${aviso.id}">${aviso.notaPromedio}</td>
+                        <td>
+                            <button onclick="evaluarAviso(${aviso.id})">Evaluar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                mostrarMensaje('Error cargando avisos: ' + error.message, 'error');
+            }
+        }
+        
+        async function evaluarAviso(avisoId) {
+            const nota = prompt('Ingrese una nota entre 1 y 7:');
+            
+            if (nota === null) return; // Usuario canceló
+            
+            const notaNum = parseInt(nota);
+            
+            if (isNaN(notaNum) || notaNum < 1 || notaNum > 7) {
+                mostrarMensaje('La nota debe ser un número entre 1 y 7', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/notas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aviso_id: avisoId, nota: notaNum })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Actualizar promedio en la tabla
+                    document.getElementById(`nota-${avisoId}`).textContent = data.nuevoPromedio;
+                    mostrarMensaje('Nota agregada exitosamente', 'success');
+                } else {
+                    mostrarMensaje(data.error || 'Error al agregar nota', 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('Error de conexión: ' + error.message, 'error');
+            }
+        }
+        
+        function mostrarMensaje(texto, tipo) {
+            const div = document.getElementById('mensaje');
+            div.textContent = texto;
+            div.className = tipo;
+            div.style.display = 'block';
+            
+            setTimeout(() => {
+                div.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
