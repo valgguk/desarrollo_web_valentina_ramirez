@@ -269,7 +269,7 @@ cd adopcion-mascotas
 ```
 
 ### URLs de acceso
-- **Flask (Tareas 1-3)**: http://localhost:5000/
+- **Flask (Tareas 1-3)**: http://127.0.0.1:5000/
 - **Spring Boot (Tarea 4)**: http://localhost:8080/evaluacion
 
 ### Funcionalidad Tarea 4
