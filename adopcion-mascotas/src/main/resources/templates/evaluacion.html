@@ -15,6 +15,25 @@
         #mensaje { margin-top: 1rem; padding: 1rem; border-radius: 4px; display: none; }
         .error { background: #f44336; color: white; }
         .success { background: #4CAF50; color: white; }
+        
+        /* Modal styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 2rem; border-radius: 8px; width: 400px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .modal-header { font-size: 1.3rem; margin-bottom: 1.5rem; color: #333; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+        
+        /* Slider styles */
+        .slider-container { margin: 1.5rem 0; }
+        .slider-label { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: #666; }
+        input[type="range"] { width: 100%; height: 8px; border-radius: 5px; background: #ddd; outline: none; -webkit-appearance: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #2196F3; cursor: pointer; }
+        input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #2196F3; cursor: pointer; border: none; }
+        .nota-display { font-size: 2.5rem; text-align: center; font-weight: bold; color: #2196F3; margin: 1rem 0; }
+        .modal-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        .modal-buttons button { flex: 1; }
+        .btn-cancel { background: #757575; }
+        .btn-cancel:hover { background: #616161; }
     </style>
 </head>
 <body>
@@ -39,8 +58,56 @@
         </tbody>
     </table>
 
+    <!-- Modal para evaluar -->
+    <div id="modal-evaluar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">Evaluar Aviso #<span id="modal-aviso-id"></span></div>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Nota mínima</span>
+                    <span>Nota máxima</span>
+                </div>
+                <input type="range" id="slider-nota" min="1" max="7" value="4" step="1">
+                <div class="slider-label" style="justify-content: space-around; margin-top: 0.2rem;">
+                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                </div>
+            </div>
+            
+            <div class="nota-display" id="nota-seleccionada">4</div>
+            
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+                <button onclick="confirmarNota()">Confirmar Nota</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_BASE = '/evaluacion/api';
+        let avisoActual = null;
+        
+        // Elementos del DOM
+        const modal = document.getElementById('modal-evaluar');
+        const slider = document.getElementById('slider-nota');
+        const notaDisplay = document.getElementById('nota-seleccionada');
+        const closeBtn = document.getElementsByClassName('close')[0];
+        
+        // Actualizar display cuando se mueve el slider
+        slider.addEventListener('input', function() {
+            notaDisplay.textContent = this.value;
+        });
+        
+        // Cerrar modal al hacer clic en X
+        closeBtn.onclick = cerrarModal;
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                cerrarModal();
+            }
+        }
         
         // Cargar avisos al inicio
         document.addEventListener('DOMContentLoaded', cargarAvisos);
@@ -63,7 +130,7 @@
                         <td>${aviso.comuna}</td>
                         <td id="nota-${aviso.id}">${aviso.notaPromedio}</td>
                         <td>
-                            <button onclick="evaluarAviso(${aviso.id})">Evaluar</button>
+                            <button onclick="abrirModalEvaluar(${aviso.id})">Evaluar</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -73,31 +140,38 @@
             }
         }
         
-        async function evaluarAviso(avisoId) {
-            const nota = prompt('Ingrese una nota entre 1 y 7:');
+        function abrirModalEvaluar(avisoId) {
+            avisoActual = avisoId;
+            document.getElementById('modal-aviso-id').textContent = avisoId;
+            slider.value = 4; // Reset a valor medio
+            notaDisplay.textContent = 4;
+            modal.style.display = 'block';
+        }
+        
+        function cerrarModal() {
+            modal.style.display = 'none';
+            avisoActual = null;
+        }
+        
+        async function confirmarNota() {
+            const notaNum = parseInt(slider.value);
             
-            if (nota === null) return; // Usuario canceló
-            
-            const notaNum = parseInt(nota);
-            
-            if (isNaN(notaNum) || notaNum < 1 || notaNum > 7) {
-                mostrarMensaje('La nota debe ser un número entre 1 y 7', 'error');
-                return;
-            }
+            if (!avisoActual) return;
             
             try {
                 const response = await fetch(`${API_BASE}/notas`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ aviso_id: avisoId, nota: notaNum })
+                    body: JSON.stringify({ aviso_id: avisoActual, nota: notaNum })
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
                     // Actualizar promedio en la tabla
-                    document.getElementById(`nota-${avisoId}`).textContent = data.nuevoPromedio;
-                    mostrarMensaje('Nota agregada exitosamente', 'success');
+                    document.getElementById(`nota-${avisoActual}`).textContent = data.nuevoPromedio;
+                    mostrarMensaje(`Nota ${notaNum} agregada exitosamente. Nuevo promedio: ${data.nuevoPromedio}`, 'success');
+                    cerrarModal();
                 } else {
                     mostrarMensaje(data.error || 'Error al agregar nota', 'error');
                 }
@@ -114,7 +188,7 @@
             
             setTimeout(() => {
                 div.style.display = 'none';
-            }, 3000);
+            }, 4000);
         }
     </script>
 </body>

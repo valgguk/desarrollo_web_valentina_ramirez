@@ -274,9 +274,31 @@ cd adopcion-mascotas
 
 ### Funcionalidad Tarea 4
 - Listado de avisos con promedio de evaluaciones
-- Agregar notas entre 1 y 7 a cada aviso
+- Slider interactivo para seleccionar nota entre 1 y 7
 - Actualización asíncrona del promedio sin recargar página
 - Validación cliente/servidor de rango de notas
+
+### Decisión de diseño - Evaluaciones múltiples
+
+**Implementación actual (para demostración académica):**
+- Un usuario puede evaluar el mismo aviso múltiples veces
+- Cada nueva nota se agrega a la base de datos y el promedio se recalcula
+- Esto permite al evaluador docente verificar el correcto funcionamiento del cálculo de promedios
+
+**Implementación recomendada para producción:**
+- Agregar tabla `usuario` con autenticación
+- Relacionar cada nota con un `usuario_id`
+- Restricción: Un usuario solo puede tener UNA nota por aviso
+- Al evaluar nuevamente, se actualiza la nota existente (no se crea una nueva)
+- Esto evita manipulación del promedio y refleja la opinión real de cada usuario
+
+**Cambio necesario en producción:**
+```sql
+-- Agregar constraint único
+ALTER TABLE nota ADD CONSTRAINT unique_usuario_aviso UNIQUE (usuario_id, aviso_id);
+
+-- Modificar lógica de inserción para usar UPSERT (INSERT ... ON DUPLICATE KEY UPDATE)
+```
 
 ---
 ## 19. Tecnologías por tarea
