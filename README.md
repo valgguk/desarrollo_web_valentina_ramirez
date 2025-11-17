@@ -1,4 +1,4 @@
-# Aplicación de Adopción de Mascotas — Versión Flask + MySQL
+# Aplicación de Adopción de Mascotas 
 
 Este repositorio evolucionó desde un prototipo estático (HTML/CSS/JS) hacia una **aplicación Flask** con persistencia en **MySQL** utilizando **SQLAlchemy**. Aquí se documentan los pasos para instalar, ejecutar, poblar datos y los principales criterios de diseño y validación, para facilitar la revisión docente.
 
@@ -265,7 +265,7 @@ python run.py
 
 # Terminal 2: Spring Boot
 cd adopcion-mascotas
-mvn spring-boot:run
+.\mvnw.cmd spring-boot:run
 ```
 
 ### URLs de acceso
