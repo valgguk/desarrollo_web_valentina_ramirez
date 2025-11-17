@@ -2,12 +2,16 @@ package cl.aplicacionesweb.adopcion_mascotas.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "aviso_adopcion")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AvisoAdopcion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

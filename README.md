@@ -240,19 +240,51 @@ Estos no corresponden al HTML real; el validador recibe las llaves de Jinja porq
 Proyecto académico. Para revisión docente: revisar secciones 9–12 para criterios de corrección.
 
 ---
-# Tarea 3 - Desarrollo Web
+## 18. Tarea 4 - Sistema de Evaluación (Spring Boot)
 
-## Bibliotecas externas utilizadas
+### Requisitos adicionales
+- Java 17+
+- Maven 3.6+
 
-- **Highcharts** (v11): Para generación de gráficos dinámicos
-  - Licencia: Gratis para uso educativo y personal
-  - https://www.highcharts.com/
-  - Usada para: Gráfico de líneas, torta y barras en estadísticas
+### Iniciar aplicación completa (Flask + Spring Boot)
 
-## Tecnologías
-- Python 3.11+ con Flask
-- MySQL 8.0
-- JavaScript ES6+ con Fetch API
-- Highcharts 11
+#### Opción 1: Script automático (recomendado)
+```powershell
+# Activar entorno virtual
+.\.venv\Scripts\Activate.ps1
+
+# Iniciar ambas aplicaciones
+python start_all.py
+```
+
+#### Opción 2: Manual (ventanas separadas)
+```powershell
+# Terminal 1: Flask
+.\.venv\Scripts\Activate.ps1
+python run.py
+
+# Terminal 2: Spring Boot
+cd adopcion-mascotas
+mvn spring-boot:run
+```
+
+### URLs de acceso
+- **Flask (Tareas 1-3)**: http://localhost:5000/
+- **Spring Boot (Tarea 4)**: http://localhost:8080/evaluacion
+
+### Funcionalidad Tarea 4
+- Listado de avisos con promedio de evaluaciones
+- Agregar notas entre 1 y 7 a cada aviso
+- Actualización asíncrona del promedio sin recargar página
+- Validación cliente/servidor de rango de notas
+
+---
+## 19. Tecnologías por tarea
+
+| Tarea | Stack |
+|-------|-------|
+| 1-2 | Flask + SQLAlchemy + MySQL + Jinja2 |
+| 3 | Flask + Highcharts + Fetch API |
+| 4 | Spring Boot + JPA + Thymeleaf + Fetch API |
 
 
