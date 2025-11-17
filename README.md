@@ -32,6 +32,105 @@ pip install -r requirements.txt
 El archivo `requirements.txt` incluye: Flask, Flask_SQLAlchemy, PyMySQL, Pillow (para generar miniaturas y versiones large al subir nuevas fotos).
 
 ---
+
+## 4.1. Ejecución rápida (resumen)
+```powershell
+git clone <URL>
+cd desarrollo_web_valentina_ramirez
+python -m venv .venv
+./.venv/Scripts/Activate.ps1
+pip install -r requirements.txt
+mysql -u cc5002 -p  # (ejecutar SOURCE tarea2/tarea2.sql dentro de la consola)
+python seed_full.py
+python run.py
+# Navegar a http://127.0.0.1:5000/
+```
+
+---
+## 4.2. Tarea 4 - Sistema de Evaluación (Spring Boot)
+
+### Requisitos adicionales
+- Java 17+
+- Maven 3.6+
+
+### Iniciar aplicación completa (Flask + Spring Boot)
+
+#### Opción 1: Script automático (recomendado)
+```powershell
+# Activar entorno virtual
+.\.venv\Scripts\Activate.ps1
+
+# Iniciar ambas aplicaciones
+python start_all.py
+```
+
+#### Opción 2: Manual (ventanas separadas)
+```powershell
+# Terminal 1: Flask
+.\.venv\Scripts\Activate.ps1
+python run.py
+
+# Terminal 2: Spring Boot
+cd adopcion-mascotas
+.\mvnw.cmd spring-boot:run
+```
+
+### URLs de acceso
+- **Flask (Tareas 1-3)**: http://localhost:5000/
+- **Spring Boot (Tarea 4)**: http://localhost:8080/evaluacion
+
+### Funcionalidad Tarea 4
+- Listado de avisos con promedio de evaluaciones
+- Slider interactivo para seleccionar nota entre 1 y 7
+- Actualización asíncrona del promedio sin recargar página
+- Validación cliente/servidor de rango de notas
+
+### Decisión de diseño - Evaluaciones múltiples
+
+**Implementación actual (para demostración académica):**
+- Un usuario puede evaluar el mismo aviso múltiples veces
+- Cada nueva nota se agrega a la base de datos y el promedio se recalcula
+- Esto permite al evaluador docente verificar el correcto funcionamiento del cálculo de promedios
+
+**Implementación recomendada para producción:**
+- Agregar tabla `usuario` con autenticación
+- Relacionar cada nota con un `usuario_id`
+- Restricción: Un usuario solo puede tener UNA nota por aviso
+- Al evaluar nuevamente, se actualiza la nota existente (no se crea una nueva)
+- Esto evita manipulación del promedio y refleja la opinión real de cada usuario
+
+**Cambio necesario en producción:**
+```sql
+-- Agregar constraint único
+ALTER TABLE nota ADD CONSTRAINT unique_usuario_aviso UNIQUE (usuario_id, aviso_id);
+
+-- Modificar lógica de inserción para usar UPSERT (INSERT ... ON DUPLICATE KEY UPDATE)
+```
+
+---
+## 4.3. Tecnologías por tarea
+
+| Tarea | Stack |
+|-------|-------|
+| 1-2 | Flask + SQLAlchemy + MySQL + Jinja2 |
+| 3 | Flask + Highcharts + Fetch API |
+| 4 | Spring Boot + JPA + Thymeleaf + Fetch API |
+
+## Validación CSS
+
+El archivo `styles.css` fue validado con el servicio W3C CSS Validator.
+
+**Resultado:** ✅ CSS Válido (CSS nivel 3 + SVG)
+
+**Warnings sobre CSS Variables:**
+El validador muestra 7 warnings sobre "CSS variables are currently not statically checked". 
+Estos warnings son informativos y **no indican errores**. Las variables CSS (Custom Properties) 
+son parte del estándar CSS Custom Properties for Cascading Variables Module Level 1 
+(https://www.w3.org/TR/css-variables-1/) y son ampliamente soportadas por navegadores modernos.
+
+Todas las variables están correctamente definidas en `:root` y utilizadas según especificación.
+
+---
 ## 5. Crear/Importar el esquema MySQL ( regiones / comunas )
 Antes de importar el script SQL, se debe de tener un servidor MySQL corriendo y crear la base de datos y el usuario que usa la aplicación (por defecto en este repositorio usamos `cc5002` / `programacionweb` y la base `tarea2`).
 
@@ -215,19 +314,6 @@ Modificar ahí si cambia usuario/clave o base.
 Imágenes de ejemplo: procedentes de Pexels (uso libre). Uso estrictamente educativo.
 
 ---
-## 15. Ejecución rápida (resumen)
-```powershell
-git clone <URL>
-cd desarrollo_web_valentina_ramirez
-python -m venv .venv
-./.venv/Scripts/Activate.ps1
-pip install -r requirements.txt
-mysql -u cc5002 -p  # (ejecutar SOURCE tarea2/tarea2.sql dentro de la consola)
-python seed_full.py
-python run.py
-# Navegar a http://127.0.0.1:5000/
-```
----
 ## 16. Validación HTML (W3C)
 Al validar directamente los archivos de plantilla Jinja aparecían “errores” como:
 
@@ -239,72 +325,3 @@ Estos no corresponden al HTML real; el validador recibe las llaves de Jinja porq
 ## 17. Contacto
 Proyecto académico. Para revisión docente: revisar secciones 9–12 para criterios de corrección.
 
----
-## 18. Tarea 4 - Sistema de Evaluación (Spring Boot)
-
-### Requisitos adicionales
-- Java 17+
-- Maven 3.6+
-
-### Iniciar aplicación completa (Flask + Spring Boot)
-
-#### Opción 1: Script automático (recomendado)
-```powershell
-# Activar entorno virtual
-.\.venv\Scripts\Activate.ps1
-
-# Iniciar ambas aplicaciones
-python start_all.py
-```
-
-#### Opción 2: Manual (ventanas separadas)
-```powershell
-# Terminal 1: Flask
-.\.venv\Scripts\Activate.ps1
-python run.py
-
-# Terminal 2: Spring Boot
-cd adopcion-mascotas
-.\mvnw.cmd spring-boot:run
-```
-
-### URLs de acceso
-- **Flask (Tareas 1-3)**: http://127.0.0.1:5000/
-- **Spring Boot (Tarea 4)**: http://localhost:8080/evaluacion
-
-### Funcionalidad Tarea 4
-- Listado de avisos con promedio de evaluaciones
-- Slider interactivo para seleccionar nota entre 1 y 7
-- Actualización asíncrona del promedio sin recargar página
-- Validación cliente/servidor de rango de notas
-
-### Decisión de diseño - Evaluaciones múltiples
-
-**Implementación actual (para demostración académica):**
-- Un usuario puede evaluar el mismo aviso múltiples veces
-- Cada nueva nota se agrega a la base de datos y el promedio se recalcula
-- Esto permite al evaluador docente verificar el correcto funcionamiento del cálculo de promedios
-
-**Implementación recomendada para producción:**
-- Agregar tabla `usuario` con autenticación
-- Relacionar cada nota con un `usuario_id`
-- Restricción: Un usuario solo puede tener UNA nota por aviso
-- Al evaluar nuevamente, se actualiza la nota existente (no se crea una nueva)
-- Esto evita manipulación del promedio y refleja la opinión real de cada usuario
-
-**Cambio necesario en producción:**
-```sql
--- Agregar constraint único
-ALTER TABLE nota ADD CONSTRAINT unique_usuario_aviso UNIQUE (usuario_id, aviso_id);
-
--- Modificar lógica de inserción para usar UPSERT (INSERT ... ON DUPLICATE KEY UPDATE)
-```
-
----
-## 19. Tecnologías por tarea
-
-| Tarea | Stack |
-|-------|-------|
-| 1-2 | Flask + SQLAlchemy + MySQL + Jinja2 |
-| 3 | Flask + Highcharts + Fetch API |
-| 4 | Spring Boot + JPA + Thymeleaf + Fetch API |
