@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Adopta Mascotas — Portada</title>
+  <title>AdoptaFirumichis — Portada</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 </head>
 <body>
 <header>
   <div class="container">
-    <h1>Adopta Mascotas</h1>
+    <h1>🐾 AdoptaFirumichis</h1>
     <nav>
       <a href="{{ url_for('main.agregar') }}">Agregar aviso de adopción</a>
       <a href="{{ url_for('main.listado') }}">Ver listado de adopciones</a>
-  <a href="{{ url_for('main.estadisticas') }}">Ver estadísticas</a>
+      <a href="{{ url_for('main.estadisticas') }}">Ver estadísticas</a>
       <a href="http://localhost:8080/evaluacion" target="_blank">Evaluación ⭐</a>
     </nav>
   </div>
@@ -28,9 +28,14 @@
       </div>
     {% endif %}
   {% endwith %}
-  <section class="section">
-    <h2>Bienvenido</h2>
-    <p class="small">Aplicación de adopción de mascotas. Aquí ves los últimos 5 avisos ingresados.</p>
+  <section class="section" style="text-align:center; background: linear-gradient(135deg, #B8E6CC 0%, #C4E7FF 50%, #FFD4E5 100%); border: none; padding: 2rem;">
+    <h2 style="color: #3d2817; text-shadow: none; font-size: 2rem; margin-bottom: 0.5rem; font-weight: 700;">
+      ¡Bienvenido a AdoptaFirumichis! 🐾
+    </h2>
+    <p class="small" style="color: #3d2817; font-size: 1.1rem; text-shadow: none;">
+      Ayuda a encontrar un hogar para estas adorables mascotas. 
+      Aquí puedes ver los últimos 5 avisos de adopción publicados. 💚
+    </p>
   </section>
 
   <section class="section" aria-labelledby="ultimos-heading">
@@ -85,13 +90,13 @@
   </p>
   <!-- Modal para ampliar imagen en portada -->
   <div id="modal-index" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); align-items:center; justify-content:center;">
-    <div style="position:relative; max-width:90%; max-height:90%;">
-      <button id="cerrar-modal-index" style="position:absolute; top:-10px; right:-10px; background:#fff; border:1px solid #333; cursor:pointer;">✕</button>
+    <div style="position:relative; max-width:90%; max-height:90%; background:white; padding:1rem; border-radius:20px;">
+      <button id="cerrar-modal-index" style="position:absolute; top:10px; right:10px; background:white; color:#3d2817; border:2px solid #3d2817; padding:0.5rem 1rem; border-radius:12px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.2); font-size:1.2rem;">✕</button>
       <img 
         id="modal-index-img" 
         src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
         alt="Imagen grande" 
-        style="max-width:100%; height:auto; display:block; border-radius:4px;">
+        style="max-width:100%; height:auto; display:block; border-radius:12px;">
     </div>
   </div>
 </main>

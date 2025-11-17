@@ -308,5 +308,3 @@ ALTER TABLE nota ADD CONSTRAINT unique_usuario_aviso UNIQUE (usuario_id, aviso_i
 | 1-2 | Flask + SQLAlchemy + MySQL + Jinja2 |
 | 3 | Flask + Highcharts + Fetch API |
 | 4 | Spring Boot + JPA + Thymeleaf + Fetch API |
-
-
