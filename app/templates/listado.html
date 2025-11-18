@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdoptaFirumichis — Listado de Avisos de Adopción</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>🐾 AdoptaFirumichis — Listado</h1>
+    <nav>
+      <a href="{{ url_for('main.index') }}">AdoptaFirumichis</a>
+      <a href="{{ url_for('main.agregar') }}">Agregar aviso de adopción</a>
+      <a href="{{ url_for('main.estadisticas') }}">Ver estadísticas</a>
+      <a href="http://localhost:8080/evaluacion" target="_blank">Evaluación ⭐</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <section class="section">
+    <h2>Tabla de avisos de Adopción</h2>
+    <table id="tabla-adopciones" aria-label="Tabla de avisos">
+      <thead>
+        <tr>
+          <th>Fecha de publicación</th>
+            <th>Fecha de entrega</th>
+            <th>Comuna</th>
+            <th>Sector</th>
+            <th>Cantidad - Tipo - Edad</th>
+            <th>Nombre - contacto</th>
+            <th>Total fotos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in page.items %}
+        <tr data-href="{{ url_for('main.detalle', aviso_id=a.id) }}" class="fila-aviso" style="cursor:pointer">
+          <td>{{ a.fecha_ingreso.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ a.fecha_entrega.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ a.comuna.nombre }}</td>
+          <td>{{ a.sector or '' }}</td>
+          <td>{{ plural(a.cantidad, a.tipo, a.tipo + 's') }}<br>{% if a.unidad_medida=='m' %}{{ plural(a.edad,'mes','meses') }}{% else %}{{ plural(a.edad,'año','años') }}{% endif %}</td>
+          <td>{{ a.nombre }} — {{ a.email }}{% if a.celular %} / {{ a.celular }}{% endif %}</td>
+          <td>{{ a.fotos_unicas_count if a.fotos_unicas_count is defined else a.fotos|length }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7">No hay avisos aún.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <nav class="paginacion" style="margin-top:1rem; display:flex; gap:1rem; align-items:center;">
+      {% if page.has_prev %}
+        <a class="btn" href="{{ url_for('main.listado', page=page.prev_num) }}">&laquo; Anterior</a>
+      {% endif %}
+      <span>Página {{ page.page }} de {{ page.pages or 1 }}</span>
+      {% if page.has_next %}
+        <a class="btn" href="{{ url_for('main.listado', page=page.next_num) }}">Siguiente &raquo;</a>
+      {% endif %}
+    </nav>
+  </section>
+  <div class="acciones">
+    <a href="{{ url_for('main.index') }}">← Volver a la portada</a>
+  </div>
+</main>
+<footer></footer>
+<script>
+  document.addEventListener('DOMContentLoaded', ()=>{
+    document.querySelectorAll('tr.fila-aviso').forEach(tr=>{
+      tr.addEventListener('click', ()=>{ window.location = tr.dataset.href; });
+    });
+  });
+</script>
+</body>
+</html>

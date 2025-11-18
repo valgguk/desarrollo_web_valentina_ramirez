@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdoptaFirumichis — Detalle del aviso</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>🐾 AdoptaFirumichis — Detalle del aviso</h1>
+    <nav>
+      <a href="{{ url_for('main.index') }}">AdoptaFirumichis</a>
+      <a href="{{ url_for('main.agregar') }}">Agregar aviso de adopción</a>
+      <a href="{{ url_for('main.listado') }}">Ver listado de adopciones</a>
+      <a href="{{ url_for('main.estadisticas') }}">Ver estadísticas</a>
+      <a href="http://localhost:8080/evaluacion" target="_blank">Evaluación ⭐</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <section id="detalle" class="section" data-aviso-id="{{ aviso.id }}">
+    <h2>Publicación de {{ aviso.nombre }}</h2>
+    <p><strong>Fecha de publicación:</strong> {{ aviso.fecha_ingreso.strftime('%Y-%m-%d %H:%M') }}</p>
+    <p><strong>Fecha de entrega:</strong> {{ aviso.fecha_entrega.strftime('%Y-%m-%d %H:%M') }}</p>
+    <p><strong>Región:</strong> {{ aviso.comuna.region.nombre }}</p>
+    <p><strong>Comuna:</strong> {{ aviso.comuna.nombre }}</p>
+    <p><strong>Sector:</strong> {{ aviso.sector or '' }}</p>
+    <p><strong>Cantidad - Tipo - Edad:</strong>
+      {{ plural(aviso.cantidad, aviso.tipo, aviso.tipo + 's') }},
+      {% if aviso.unidad_medida=='m' %}
+        {{ plural(aviso.edad, 'mes', 'meses') }}
+      {% else %}
+        {{ plural(aviso.edad, 'año', 'años') }}
+      {% endif %}
+    </p>
+    <p><strong>Contacto:</strong> {{ aviso.nombre }} — {{ aviso.email }}{% if aviso.celular %} / {{ aviso.celular }}{% endif %}</p>
+    <p><strong>Canales:</strong>
+      {% if aviso.canales %}
+        {% for c in aviso.canales %}
+          {{ c.nombre }}: {{ c.identificador }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+      {% else %}(sin canales){% endif %}
+    </p>
+    <p><strong>Descripción:</strong> {{ aviso.descripcion or '' }}</p>
+    <h3>Fotos</h3>
+    <div class="galeria">
+      {# Se asume que las variantes *_320x240.png y *_800x600.png están cargadas. Mostramos solo las small (#320) y buscamos su par large cambiando el sufijo. #}
+      {% for f in aviso.fotos %}
+        {% if '_320x240' in f.ruta_archivo %}
+          {% set large = f.ruta_archivo.replace('_320x240','_800x600') %}
+          <img src="{{ url_for('static', filename='uploads/' ~ f.ruta_archivo) }}" alt="foto {{ loop.index }}" width="320" class="foto-chica" data-large="{{ url_for('static', filename='uploads/' ~ large) }}">
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="acciones" style="margin-top:1rem; display:flex; gap:1rem;">
+      <a href="{{ url_for('main.listado') }}">← Volver al listado</a>
+      <a href="{{ url_for('main.index') }}">🏠 Portada</a>
+    </div>
+
+    <!-- Sección de Comentarios -->
+    <h3 style="margin-top:2rem;">Comentarios</h3>
+    <div id="comentarios-lista"></div>
+
+    <h4 style="margin-top:1.5rem;">Agregar comentario</h4>
+    <form id="form-comentario" style="max-width:600px;">
+      <div style="margin-bottom:1rem; position:relative;">
+        <label for="comentario-nombre">Nombre:</label>
+        <input type="text" id="comentario-nombre" required minlength="3" maxlength="80" style="width:100%; padding:0.5rem;">
+        <small id="contador-nombre" style="position:absolute; bottom:-1.2rem; right:0; color:#666; font-size:0.85em;">0/80</small>
+      </div>
+      <div style="margin-bottom:1rem; position:relative;">
+        <label for="comentario-texto">Comentario:</label>
+        <textarea id="comentario-texto" rows="4" cols="50" required minlength="5" maxlength="300" style="width:100%; padding:0.5rem;"></textarea>
+        <small id="contador-texto" style="position:absolute; bottom:-1.2rem; right:0; color:#666; font-size:0.85em;">0/300</small>
+      </div>
+      <div id="comentario-error" style="color:rgb(243, 136, 136); margin-bottom:1rem; margin-top:1rem;"></div>
+      <button type="submit" style="padding:0.5rem 1rem;">Agregar comentario</button>
+    </form>
+  </section>
+</main>
+
+<!-- Modal de foto -->
+<div id="modal-foto" class="modal">
+  <div class="modal-content">
+    <button id="cerrar-modal" class="cerrar-btn">Cerrar ✕</button>
+    <img id="modal-foto-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="foto grande">
+  </div>
+</div>
+
+<footer></footer>
+<script>
+  // Comportamiento modal básico (sin dependencia de main.js ahora)
+  const modal = document.getElementById('modal-foto');
+  const modalImg = document.getElementById('modal-foto-img');
+  const cerrarBtn = document.getElementById('cerrar-modal');
+  document.querySelectorAll('.foto-chica').forEach(img => {
+    img.addEventListener('click', () => {
+      modal.classList.add('visible');
+      modalImg.src = img.dataset.large;
+    });
+  });
+  cerrarBtn.addEventListener('click', ()=> modal.classList.remove('visible'));
+  modal.addEventListener('click', (e)=> { if (e.target === modal) modal.classList.remove('visible'); });
+
+  // ==================== Comentarios ====================
+  const avisoId = parseInt(document.getElementById('detalle').dataset.avisoId);
+  const comentariosLista = document.getElementById('comentarios-lista');
+  const formComentario = document.getElementById('form-comentario');
+  const comentarioError = document.getElementById('comentario-error');
+  const inputNombre = document.getElementById('comentario-nombre');
+  const inputTexto = document.getElementById('comentario-texto');
+  const contadorNombre = document.getElementById('contador-nombre');
+  const contadorTexto = document.getElementById('contador-texto');
+
+  // Actualizar contadores de caracteres
+  inputNombre.addEventListener('input', () => {
+    const len = inputNombre.value.length;
+    contadorNombre.textContent = `${len}/80`;
+    contadorNombre.style.color = len > 80 ? 'red' : (len < 3 ? '#999' : '#666');
+  });
+
+  inputTexto.addEventListener('input', () => {
+    const len = inputTexto.value.length;
+    contadorTexto.textContent = `${len}/300`;
+    contadorTexto.style.color = len > 300 ? 'red' : (len < 5 ? '#999' : '#666');
+  });
+
+  // Cargar comentarios al inicio
+  function cargarComentarios() {
+    fetch(`/api/comentarios/${avisoId}`)
+      .then(res => res.json())
+      .then(comentarios => {
+        if (comentarios.length === 0) {
+          comentariosLista.innerHTML = '<p><em>Sin comentarios aún.</em></p>';
+          return;
+        }
+        let html = '<ul style="list-style:none; padding:0;">';
+        comentarios.forEach(c => {
+          html += `<li style="margin-bottom:1rem; border-bottom:1px solid #ccc; padding-bottom:0.5rem; word-wrap:break-word; overflow-wrap:break-word; word-break:break-word;">
+            <strong style="word-wrap:break-word; overflow-wrap:break-word;">${escapeHtml(c.nombre)}</strong> — <small>${c.fecha}</small>
+            <p style="margin:0.25rem 0 0 0; word-wrap:break-word; overflow-wrap:break-word; word-break:break-word; max-width:100%; max-height:6em; overflow-y:auto; padding:0.5rem; background:#f9f9f9; border:1px solid #ddd;">${escapeHtml(c.texto)}</p>
+          </li>`;
+        });
+        html += '</ul>';
+        comentariosLista.innerHTML = html;
+      })
+      .catch(err => {
+        console.error('Error cargando comentarios:', err);
+        comentariosLista.innerHTML = '<p style="color:red;">Error cargando comentarios.</p>';
+      });
+  }
+
+  // Agregar comentario
+  formComentario.addEventListener('submit', (e) => {
+    e.preventDefault();
+    comentarioError.textContent = '';
+
+    const nombre = inputNombre.value.trim();
+    const texto = inputTexto.value.trim();
+
+    fetch('/api/comentarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        aviso_id: avisoId,
+        nombre: nombre,
+        texto: texto,
+        csrf_token: '{{ session.csrf_token }}'
+      })
+    })
+    .then(res => {
+      if (!res.ok) {
+        return res.json().then(data => { throw new Error(data.error || 'Error desconocido'); });
+      }
+      return res.json();
+    })
+    .then(data => {
+      // Limpiar formulario
+      inputNombre.value = '';
+      inputTexto.value = '';
+      // Resetear contadores
+      contadorNombre.textContent = '0/80';
+      contadorTexto.textContent = '0/300';
+      contadorNombre.style.color = '#999';
+      contadorTexto.style.color = '#999';
+      // Recargar comentarios
+      cargarComentarios();
+    })
+    .catch(err => {
+      comentarioError.textContent = err.message;
+    });
+  });
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Cargar comentarios al cargar la página
+  cargarComentarios();
+</script>
+</body>
+</html>

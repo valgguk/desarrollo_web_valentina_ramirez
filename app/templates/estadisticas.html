@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdoptaFirumichis — Estadísticas</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>🐾 AdoptaFirumichis — Estadísticas</h1>
+    <nav>
+      <a href="{{ url_for('main.index') }}">AdoptaFirumichis</a>
+      <a href="{{ url_for('main.agregar') }}">Agregar aviso de adopción</a>
+      <a href="{{ url_for('main.listado') }}">Ver listado de adopciones</a>
+      <a href="http://localhost:8080/evaluacion" target="_blank">Evaluación ⭐</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <section class="section">
+    <h2>Avisos por día</h2>
+    <div id="grafico-lineas" style="height:400px;"></div>
+  </section>
+  <section class="section">
+    <h2>Cantidad de avisos por tipo</h2>
+    <div id="grafico-torta" style="height:400px;"></div>
+  </section>
+  <section class="section">
+    <h2>Gatos vs Perros por mes</h2>
+    <div id="grafico-barras" style="height:400px;"></div>
+  </section>
+  <p><a href="{{ url_for('main.index') }}">← Volver a la portada</a></p>
+</main>
+<footer></footer>
+
+<script>
+  // Colores kawaii personalizados
+  const coloresKawaii = ['#B8E6CC', '#FFD4E5', '#C4E7FF', '#E3D4FF', '#D4C4B0'];
+  
+  // ==================== Gráfico de líneas ====================
+  fetch('/api/stats/avisos_por_dia')
+    .then(res => res.json())
+    .then(data => {
+      const categorias = data.map(d => d.dia);
+      const valores = data.map(d => d.total);
+      
+      Highcharts.chart('grafico-lineas', {
+        chart: { type: 'line' },
+        title: { text: 'Avisos por día', style: { color: '#333', fontSize: '1.5rem' } },
+        xAxis: { categories: categorias, title: { text: 'Día' } },
+        yAxis: { title: { text: 'Cantidad de avisos' } },
+        series: [{ name: 'Avisos', data: valores, color: '#B8E6CC' }],
+        credits: { enabled: false }
+      });
+    })
+    .catch(err => {
+      document.getElementById('grafico-lineas').innerHTML = '<p style="color:red;">⚠️ Error cargando datos del gráfico de líneas. Intente recargar la página.</p>';
+      console.error('Error en gráfico de líneas:', err);
+    });
+
+  // ==================== Gráfico de torta ====================
+  fetch('/api/stats/total_por_tipo')
+    .then(res => res.json())
+    .then(data => {
+      const seriesData = data.map((d, i) => ({ 
+        name: d.tipo, 
+        y: d.total,
+        color: d.tipo === 'perro' ? '#D4C4B0' : '#E3D4FF' // Café claro para perro, púrpura para gato
+      }));
+      
+      Highcharts.chart('grafico-torta', {
+        chart: { type: 'pie' },
+        title: { text: 'Cantidad de avisos por tipo', style: { color: '#333', fontSize: '1.5rem' } },
+        series: [{
+          name: 'Avisos',
+          data: seriesData
+        }],
+        credits: { enabled: false }
+      });
+    })
+    .catch(err => {
+      document.getElementById('grafico-torta').innerHTML = '<p style="color:red;">Error cargando datos.</p>';
+      console.error(err);
+    });
+
+  // ==================== Gráfico de barras ====================
+  fetch('/api/stats/gatos_perros_por_mes')
+    .then(res => res.json())
+    .then(data => {
+      const meses = data.map(d => d.mes);
+      const gatos = data.map(d => d.gatos);
+      const perros = data.map(d => d.perros);
+      
+      Highcharts.chart('grafico-barras', {
+        chart: { type: 'column' },
+        title: { text: 'Gatos vs Perros por mes', style: { color: '#333', fontSize: '1.5rem' } },
+        xAxis: { categories: meses, title: { text: 'Mes' } },
+        yAxis: { title: { text: 'Cantidad de avisos' } },
+        series: [
+          { name: 'Gatos', data: gatos, color: '#E3D4FF' }, // Púrpura claro
+          { name: 'Perros', data: perros, color: '#D4C4B0' } // Café claro
+        ],
+        credits: { enabled: false }
+      });
+    })
+    .catch(err => {
+      document.getElementById('grafico-barras').innerHTML = '<p style="color:red;">Error cargando datos.</p>';
+      console.error(err);
+    });
+</script>
+</body>
+</html>

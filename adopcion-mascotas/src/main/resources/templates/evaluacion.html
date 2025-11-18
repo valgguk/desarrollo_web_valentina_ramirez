@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 AdoptaFirumichis — Evaluación</title>
+    <style>
+        /* Paleta kawaii */
+        :root {
+            --verde-kawaii: #B8E6CC;
+            --rosa-kawaii: #FFD4E5;
+            --celeste-kawaii: #C4E7FF;
+            --purpura-kawaii: #E3D4FF;
+            --cafe-kawaii: #D4C4B0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', system-ui, Arial, sans-serif; 
+            background: linear-gradient(135deg, #fafafa 0%, #f0f9ff 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        
+        /* Header kawaii */
+        h1 {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #3d2817; /* café oscuro */
+            background: linear-gradient(90deg, var(--verde-kawaii) 0%, var(--celeste-kawaii) 50%, var(--rosa-kawaii) 100%);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            text-shadow: none; /* sin contorno */
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        /* Tabla kawaii */
+        table { 
+            width: 100%; 
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white; 
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-top: 1.5rem;
+        }
+        th { 
+            background: linear-gradient(90deg, var(--verde-kawaii) 0%, var(--celeste-kawaii) 100%);
+            color: #3d2817; /* café oscuro */
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            text-shadow: none; /* sin contorno */
+        }
+        td { 
+            border-bottom: 1px solid #f0f0f0; 
+            padding: 0.8rem;
+        }
+        tr:hover td { 
+            background: var(--celeste-kawaii);
+            transition: background 0.2s;
+        }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Botones kawaii */
+        button {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--verde-kawaii) 0%, var(--celeste-kawaii) 100%);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Mensajes kawaii */
+        #mensaje { 
+            margin-top: 1rem; 
+            padding: 1rem; 
+            border-radius: 12px; 
+            display: none;
+            box-shadow: var(--shadow);
+            font-weight: 600;
+        }
+        .error { background: var(--rosa-kawaii); color: #721c24; }
+        .success { background: var(--verde-kawaii); color: #155724; }
+        
+        /* Modal kawaii */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content { 
+            background: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 450px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 3px solid var(--celeste-kawaii);
+        }
+        .modal-header { 
+            font-size: 1.4rem; 
+            margin-bottom: 1.5rem; 
+            color: #333;
+            text-align: center;
+            font-weight: 700;
+        }
+        .close { 
+            color: #3d2817; /* café oscuro */
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 0.8;
+        }
+        .close:hover { 
+            color: var(--rosa-kawaii); 
+            transform: scale(1.1); 
+        }
+        
+        /* Slider kawaii */
+        .slider-container { margin: 1.5rem 0; }
+        .slider-label { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 0.5rem; 
+            font-size: 0.9rem; 
+            color: #666;
+            font-weight: 600;
+        }
+        input[type="range"] { 
+            width: 100%; 
+            height: 12px; 
+            border-radius: 10px; 
+            background: linear-gradient(90deg, var(--verde-kawaii) 0%, var(--purpura-kawaii) 100%);
+            outline: none; 
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            appearance: none; 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 50%; 
+            background: white;
+            cursor: pointer;
+            border: 4px solid var(--celeste-kawaii);
+            box-shadow: var(--shadow);
+        }
+        input[type="range"]::-moz-range-thumb { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 50%; 
+            background: white;
+            cursor: pointer; 
+            border: 4px solid var(--celeste-kawaii);
+            box-shadow: var(--shadow);
+        }
+        .nota-display { 
+            font-size: 3rem; 
+            text-align: center; 
+            font-weight: bold; 
+            background: linear-gradient(135deg, var(--verde-kawaii) 0%, var(--celeste-kawaii) 50%, var(--rosa-kawaii) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 1rem 0;
+        }
+        .modal-buttons { 
+            display: flex; 
+            gap: 1rem; 
+            margin-top: 1.5rem; 
+        }
+        .modal-buttons button { flex: 1; }
+        .btn-cancel { 
+            background: linear-gradient(135deg, #ddd 0%, #ccc 100%);
+            color: #333;
+        }
+        .btn-cancel:hover { background: linear-gradient(135deg, #ccc 0%, #bbb 100%); }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        table { animation: fadeIn 0.3s ease-out; }
+    </style>
+</head>
+<body>
+    <h1>🐾 AdoptaFirumichis — Evaluación</h1>
+    
+    <div id="mensaje"></div>
+    
+    <table id="tabla-avisos">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha Publicación</th>
+                <th>Sector</th>
+                <th>Cantidad Tipo Edad</th>
+                <th>Comuna</th>
+                <th>Nota</th>
+                <th>Evaluar</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-avisos">
+            <!-- Cargado dinámicamente con JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Modal para evaluar -->
+    <div id="modal-evaluar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">🌟 Evaluar Aviso #<span id="modal-aviso-id"></span></div>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>😞 Nota mínima</span>
+                    <span>😍 Nota máxima</span>
+                </div>
+                <input type="range" id="slider-nota" min="1" max="7" value="4" step="1">
+                <div class="slider-label" style="justify-content: space-around; margin-top: 0.4rem; font-size: 1rem;">
+                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                </div>
+            </div>
+            
+            <div class="nota-display" id="nota-seleccionada">4</div>
+            
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="cerrarModal()">❌ Cancelar</button>
+                <button onclick="confirmarNota()">✅ Confirmar Nota</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/evaluacion/api';
+        let avisoActual = null;
+        
+        // Elementos del DOM
+        const modal = document.getElementById('modal-evaluar');
+        const slider = document.getElementById('slider-nota');
+        const notaDisplay = document.getElementById('nota-seleccionada');
+        const closeBtn = document.getElementsByClassName('close')[0];
+        
+        // Actualizar display cuando se mueve el slider
+        slider.addEventListener('input', function() {
+            notaDisplay.textContent = this.value;
+        });
+        
+        // Cerrar modal al hacer clic en X
+        closeBtn.onclick = cerrarModal;
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        window.onclick = function(event) {
+            if (event.target == modal) cerrarModal();
+        }
+        
+        document.addEventListener('DOMContentLoaded', cargarAvisos);
+        
+        async function cargarAvisos() {
+            try {
+                const response = await fetch(`${API_BASE}/avisos`);
+                const avisos = await response.json();
+                
+                const tbody = document.getElementById('tbody-avisos');
+                tbody.innerHTML = '';
+                
+                avisos.forEach(aviso => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${aviso.id}</td>
+                        <td>${aviso.fechaPublicacion}</td>
+                        <td>${aviso.sector}</td>
+                        <td>${aviso.descripcionMascota}</td>
+                        <td>${aviso.comuna}</td>
+                        <td id="nota-${aviso.id}">${aviso.notaPromedio}</td>
+                        <td>
+                            <button onclick="abrirModalEvaluar(${aviso.id})">⭐ Evaluar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                mostrarMensaje('Error cargando avisos: ' + error.message, 'error');
+            }
+        }
+        
+        function abrirModalEvaluar(avisoId) {
+            avisoActual = avisoId;
+            document.getElementById('modal-aviso-id').textContent = avisoId;
+            slider.value = 4;
+            notaDisplay.textContent = 4;
+            modal.style.display = 'block';
+        }
+        
+        function cerrarModal() {
+            modal.style.display = 'none';
+            avisoActual = null;
+        }
+        
+        async function confirmarNota() {
+            const notaNum = parseInt(slider.value);
+            if (!avisoActual) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/notas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aviso_id: avisoActual, nota: notaNum })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    document.getElementById(`nota-${avisoActual}`).textContent = data.nuevoPromedio;
+                    mostrarMensaje(`✅ Nota ${notaNum} agregada. Nuevo promedio: ${data.nuevoPromedio}`, 'success');
+                    cerrarModal();
+                } else {
+                    mostrarMensaje('❌ ' + (data.error || 'Error al agregar nota'), 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('❌ Error de conexión: ' + error.message, 'error');
+            }
+        }
+        
+        function mostrarMensaje(texto, tipo) {
+            const div = document.getElementById('mensaje');
+            div.textContent = texto;
+            div.className = tipo;
+            div.style.display = 'block';
+            
+            setTimeout(() => {
+                div.style.display = 'none';
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

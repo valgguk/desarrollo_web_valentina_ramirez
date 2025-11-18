@@ -1,0 +1,341 @@
+/* Paleta kawaii: Verde menta, Rosa pastel, Celeste, Púrpura suave */
+:root{ 
+  --bg:#fafafa; 
+  --fg:#333; 
+  --muted:#888; 
+  --verde-kawaii: #B8E6CC; /* verde menta suave */
+  --rosa-kawaii: #FFD4E5; /* rosa pastel */
+  --celeste-kawaii: #C4E7FF; /* celeste suave */
+  --purpura-kawaii: #E3D4FF; /* púrpura lavanda */
+  --cafe-kawaii: #D4C4B0; /* café claro */
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+*{ box-sizing: border-box; margin: 0; padding: 0; }
+body{ 
+  font-family: 'Segoe UI', system-ui, Arial, sans-serif; 
+  background: linear-gradient(135deg, #fafafa 0%, #f0f9ff 100%); 
+  color: var(--fg); 
+  line-height: 1.6;
+}
+
+/* Header con degradado kawaii */
+header{ 
+  background: linear-gradient(90deg, var(--verde-kawaii) 0%, var(--celeste-kawaii) 50%, var(--rosa-kawaii) 100%); 
+  border-bottom: 3px solid rgba(255,255,255,0.5); 
+  position: sticky; 
+  top: 0; 
+  z-index: 100; 
+  box-shadow: var(--shadow);
+  padding: 1rem 2rem;
+}
+
+header h1 { 
+  margin: 0.3rem 0; 
+  color: #3d2817; /* café oscuro */
+  text-shadow: none; /* sin contorno */
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+nav { margin-top: 0.5rem; }
+nav a{ 
+  margin-right: 1.2rem; 
+  text-decoration: none; 
+  color: #3d2817; /* café oscuro */
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  transition: all 0.2s;
+  display: inline-block;
+  text-shadow: none; /* sin contorno */
+}
+nav a:hover{ 
+  background: rgba(255,255,255,0.5);
+  transform: translateY(-2px);
+}
+
+.container{ max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+
+/* Secciones con bordes redondeados kawaii */
+.section{ 
+  background: white; 
+  padding: 1.5rem; 
+  border-radius: 20px; 
+  margin: 1.5rem 0; 
+  border: 2px solid var(--celeste-kawaii);
+  box-shadow: var(--shadow);
+}
+
+/* Tablas estilo kawaii */
+table{ 
+  width: 100%; 
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white; 
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+th{ 
+  background: linear-gradient(90deg, var(--verde-kawaii) 0%, var(--celeste-kawaii) 100%);
+  color: #3d2817; /* café oscuro en headers de tabla */
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  text-shadow: none; /* sin contorno */
+}
+td{ 
+  border-bottom: 1px solid #f0f0f0; 
+  padding: 0.8rem;
+}
+tr:hover td{ 
+  background: var(--celeste-kawaii); 
+  cursor: pointer;
+  transition: background 0.2s;
+}
+tr:last-child td{ border-bottom: none; }
+
+/* Formularios kawaii */
+label{ 
+  display: block; 
+  margin-top: 1rem; 
+  font-weight: 600;
+  color: var(--fg);
+}
+input[type="text"], 
+input[type="email"], 
+input[type="tel"], 
+input[type="number"], 
+input[type="datetime-local"], 
+select, 
+textarea{
+  width: 100%; 
+  padding: 0.75rem; 
+  border: 2px solid var(--celeste-kawaii); 
+  border-radius: 12px; 
+  background: white;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+input:focus, select:focus, textarea:focus{
+  outline: none;
+  border-color: var(--verde-kawaii);
+  box-shadow: 0 0 0 3px rgba(184, 230, 204, 0.2);
+}
+textarea{ resize: vertical; min-height: 100px; }
+
+/* Botones kawaii */
+button, .btn{ 
+  padding: 0.7rem 1.5rem; 
+  border: none; 
+  border-radius: 12px; 
+  background: linear-gradient(135deg, var(--verde-kawaii) 0%, var(--celeste-kawaii) 100%);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  display: inline-block;
+}
+button:hover, .btn:hover{ 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Comentarios con diseño kawaii */
+#comentarios-lista ul{
+  list-style: none;
+  padding: 0;
+}
+#comentarios-lista li{
+  background: linear-gradient(135deg, var(--rosa-kawaii) 0%, var(--celeste-kawaii) 100%);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+  border: 2px solid rgba(255,255,255,0.5);
+  word-wrap: break-word;
+}
+#comentarios-lista strong{
+  color: #5a5a5a;
+  font-size: 1.1rem;
+}
+#comentarios-lista p{
+  background: white;
+  padding: 0.8rem;
+  border-radius: 12px;
+  margin-top: 0.5rem;
+  max-height: 6em;
+  overflow-y: auto;
+  border: 1px solid #f0f0f0;
+}
+
+/* Formulario de comentarios */
+#form-comentario{
+  background: linear-gradient(135deg, var(--verde-kawaii) 0%, var(--purpura-kawaii) 100%);
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  border: 3px solid rgba(255,255,255,0.5);
+}
+#form-comentario label{
+  color: #3d2817; /* café oscuro */
+  text-shadow: none; /* sin contorno */
+  font-weight: 700;
+}
+#form-comentario input,
+#form-comentario textarea{
+  border: 2px solid white;
+}
+
+/* Contadores de caracteres */
+small[id^="contador-"]{
+  background: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Modal de foto mejorado */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal.visible { display: flex; }
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  max-width: 85%;
+  max-height: 85%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.modal-content img {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 12px;
+}
+.cerrar-btn {
+  background: white;
+  color: #3d2817; /* café oscuro */
+  border: 2px solid #3d2817;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+  box-shadow: var(--shadow);
+}
+.cerrar-btn:hover {
+  background: #ffb3d9; /* rosa más intenso */
+  color: white;
+  border-color: #ff8fc7; /* borde ligeramente más oscuro */
+  transform: scale(1.05);
+}
+
+/* Galería de fotos */
+.galeria{ 
+  display: flex; 
+  gap: 1rem; 
+  flex-wrap: wrap; 
+}
+.galeria img{
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
+}
+.galeria img:hover{
+  transform: scale(1.05);
+}
+
+/* Footer */
+footer{ 
+  color: var(--muted); 
+  text-align: center; 
+  padding: 2rem 1rem;
+  background: white;
+  margin-top: 2rem;
+  border-top: 3px solid var(--celeste-kawaii);
+}
+
+/* Asterisco obligatorio */
+.asterisco-obligatorio {
+  color: var(--rosa-kawaii);
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+/* Paginación */
+.paginacion{
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+.paginacion .btn{
+  background: linear-gradient(135deg, var(--celeste-kawaii) 0%, var(--purpura-kawaii) 100%);
+}
+
+/* Animación sutil */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.section {
+  animation: fadeIn 0.3s ease-out;
+} from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+/* Mejoras para móviles */
+@media (max-width: 768px) {
+  header h1 { font-size: 1.4rem; }eIn 0.3s ease-out;
+  nav a { display: block; margin: 0.3rem 0; }
+  .galeria img { max-width: 100%; }
+}
+
+/* Dialog/Modal de confirmación - estilo kawaii */
+dialog {
+  border: none;
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  background: white;
+  max-width: 500px;
+  border: 3px solid var(--celeste-kawaii);
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+dialog .box {
+  padding: 2rem;
+  text-align: center;
+}
+
+dialog .box p {
+  font-size: 1.2rem;
+  color: var(--fg);
+  margin-bottom: 1.5rem;
+}
+
+dialog .actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+dialog .actions button {
+  width: 100%;
+  font-size: 1rem;
+}
