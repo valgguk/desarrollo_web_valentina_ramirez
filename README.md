@@ -5,7 +5,7 @@ Este repositorio evolucionó desde un prototipo estático (HTML/CSS/JS) hacia un
 ---
 ## 1. Requisitos previos
 1. Python 3.10+ (probado con 3.10/3.11)
-2. MySQL Server en localhost (se asume credenciales del curso: usuario `cc5002`, password `programacionweb` y base `tarea2`).
+2. MySQL Server en localhost.
 3. (Opcional) Git instalado si se clona el repositorio.
 
 ---
@@ -116,20 +116,6 @@ ALTER TABLE nota ADD CONSTRAINT unique_usuario_aviso UNIQUE (usuario_id, aviso_i
 | 3 | Flask + Highcharts + Fetch API |
 | 4 | Spring Boot + JPA + Thymeleaf + Fetch API |
 
-## Validación CSS
-
-El archivo `styles.css` fue validado con el servicio W3C CSS Validator.
-
-**Resultado:** ✅ CSS Válido (CSS nivel 3 + SVG)
-
-**Warnings sobre CSS Variables:**
-El validador muestra 7 warnings sobre "CSS variables are currently not statically checked". 
-Estos warnings son informativos y **no indican errores**. Las variables CSS (Custom Properties) 
-son parte del estándar CSS Custom Properties for Cascading Variables Module Level 1 
-(https://www.w3.org/TR/css-variables-1/) y son ampliamente soportadas por navegadores modernos.
-
-Todas las variables están correctamente definidas en `:root` y utilizadas según especificación.
-
 ---
 ## 5. Crear/Importar el esquema MySQL ( regiones / comunas )
 Antes de importar el script SQL, se debe de tener un servidor MySQL corriendo y crear la base de datos y el usuario que usa la aplicación (por defecto en este repositorio usamos `cc5002` / `programacionweb` y la base `tarea2`).
@@ -157,7 +143,7 @@ mysql -u root -p
 CREATE DATABASE IF NOT EXISTS tarea2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- crear/actualizar usuario (ejemplo con contraseña del curso)
-CREATE USER IF NOT EXISTS 'cc5002'@'localhost' IDENTIFIED BY 'programacionweb';
+CREATE USER IF NOT EXISTS 'cc5002'@'localhost' IDENTIFIED BY '******';
 GRANT ALL PRIVILEGES ON tarea2.* TO 'cc5002'@'localhost';
 FLUSH PRIVILEGES;
 ```
@@ -171,7 +157,7 @@ SOURCE ruta/al/archivo/tarea2/tarea2.sql;
 ```
 
 ```powershell
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS tarea2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER IF NOT EXISTS 'cc5002'@'localhost' IDENTIFIED BY 'programacionweb'; GRANT ALL ON tarea2.* TO 'cc5002'@'localhost'; FLUSH PRIVILEGES;"
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS tarea2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER IF NOT EXISTS 'cc5002'@'localhost' IDENTIFIED BY '******'; GRANT ALL ON tarea2.* TO 'cc5002'@'localhost'; FLUSH PRIVILEGES;"
 mysql -u cc5002 -p tarea2 -e "SOURCE C:/ruta/completa/a/tarea2/tarea2.sql;"
 
 
@@ -322,6 +308,18 @@ Bad value {{ url_for('static', filename='styles/styles.css') }} … Illegal char
 Estos no corresponden al HTML real; el validador recibe las llaves de Jinja porque el archivo no fue renderizado por Flask. Se deja constancia de que los avisos iniciales eran falsos positivos propios del uso de plantillas.
 
 ---
-## 17. Contacto
-Proyecto académico. Para revisión docente: revisar secciones 9–12 para criterios de corrección.
+
+## 17. Validación CSS
+
+El archivo `styles.css` fue validado con el servicio W3C CSS Validator.
+
+**Resultado:** ✅ CSS Válido (CSS nivel 3 + SVG)
+
+**Warnings sobre CSS Variables:**
+El validador muestra 7 warnings sobre "CSS variables are currently not statically checked". 
+Estos warnings son informativos y **no indican errores**. Las variables CSS (Custom Properties) 
+son parte del estándar CSS Custom Properties for Cascading Variables Module Level 1 
+(https://www.w3.org/TR/css-variables-1/) y son ampliamente soportadas por navegadores modernos.
+
+Todas las variables están correctamente definidas en `:root` y utilizadas según especificación.
 
